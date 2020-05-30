@@ -66,12 +66,12 @@ export class AnimationsComponent implements OnInit {
   visible = false
   animations = {
     enter: [
-      style({ opacity: 0, transform: 'translate3d(-50%, -50%, 0) scale(0.7)' }),
-      animate('.3s ease', style({ opacity: 1, transform: 'translate3d(-50%, -50%, 0) scale(1)' }))
+      style({ opacity: 0, transform: 'scale(0.7)' }),
+      animate('.3s ease', style({ opacity: 1, transform: 'scale(1)' }))
     ],
     leave: [
-      style({ opacity: 1, transform: 'translate3d(-50%, -50%, 0) scale(1)' }),
-      animate('.3s ease', style({ opacity: 0, transform: 'translate3d(-50%, -50%, 0) scale(0.9)' }))
+      style({ opacity: 1, transform: 'scale(1)' }),
+      animate('.3s ease', style({ opacity: 0, transform: 'scale(0.9)' }))
     ]
   }
 
