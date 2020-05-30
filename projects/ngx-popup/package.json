@@ -4,6 +4,7 @@
   "version": "0.0.3",
   "license": "MIT",
   "author": "xiaojun1994 <362896731@qq.com>",
+  "repository": "git@github.com:xiaojun1994/ngx-popup.git",
   "keywords": [
     "angular",
     "ng",
