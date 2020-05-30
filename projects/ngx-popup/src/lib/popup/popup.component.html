@@ -1,0 +1,11 @@
+<div
+  class="ngx-popup ngx-popup--{{ position }}"
+  *ngIf="visible"
+  [ngClass]="externalClass"
+  [style.zIndex]="zIndex"
+>
+  <div class="ngx-popup__content" #container>
+    <ng-content></ng-content>
+  </div>
+</div>
+

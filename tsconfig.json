@@ -17,7 +17,15 @@
     "lib": [
       "es2018",
       "dom"
-    ]
+    ],
+    "paths": {
+      "ngx-popup": [
+        "dist/ngx-popup"
+      ],
+      "ngx-popup/*": [
+        "dist/ngx-popup/*"
+      ]
+    }
   },
   "angularCompilerOptions": {
     "fullTemplateTypeCheck": true,

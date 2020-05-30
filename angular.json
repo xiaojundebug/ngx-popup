@@ -124,6 +124,41 @@
           }
         }
       }
+    },
+    "ngx-popup": {
+      "projectType": "library",
+      "root": "projects/ngx-popup",
+      "sourceRoot": "projects/ngx-popup/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-ng-packagr:build",
+          "options": {
+            "tsConfig": "projects/ngx-popup/tsconfig.lib.json",
+            "project": "projects/ngx-popup/ng-package.json"
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/ngx-popup/src/test.ts",
+            "tsConfig": "projects/ngx-popup/tsconfig.spec.json",
+            "karmaConfig": "projects/ngx-popup/karma.conf.js"
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/ngx-popup/tsconfig.lib.json",
+              "projects/ngx-popup/tsconfig.spec.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        }
+      }
     }},
   "defaultProject": "ngx-popup-app"
 }
