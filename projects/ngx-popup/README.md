@@ -2,6 +2,10 @@
 
 An angular popup component that can customize animation.
 
+<p align="center">
+  <img alt="travis" src="https://travis-ci.org/xiaojun1994/ngx-popup.svg?branch=master">&nbsp;
+</p>
+
 [Demo](https://stackblitz.com/edit/ngx-popup-demo)
 
 _PS: There may be animation flashing problems on stackblitz, but my local test will not_

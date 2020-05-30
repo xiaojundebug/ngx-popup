@@ -5,6 +5,7 @@ install:
   - npm i
 script:
   - unset CI
+  - npm run build:lib
   - npm run build
 cache: npm
 deploy:
