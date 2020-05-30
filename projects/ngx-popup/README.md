@@ -6,19 +6,19 @@ An angular popup component that can customize animation.
   <img alt="travis" src="https://travis-ci.org/xiaojun1994/ngx-popup.svg?branch=master">&nbsp;
 </p>
 
-[Demo](https://stackblitz.com/edit/ngx-popup-demo)
+👉 [Demo](https://stackblitz.com/edit/ngx-popup-demo)
 
 _PS: There may be animation flashing problems on stackblitz, but my local test will not_
 
-## Install
+## 🚀 Install
 
 ```bash
 npm i @ciri/ngx-popup
 ```
 
-## Quick Start
+## 🎉 Quick Start
 
-1. Add it to your module:
+> Add it to your module:
 
 ```typescript
 import { PopupModule } from '@ciri/ngx-popup'
@@ -32,7 +32,7 @@ import { PopupModule } from '@ciri/ngx-popup'
 })
 ```
 
-2. Add to view:
+> Add to view:
 
 ```html
 <ngx-popup [(ngModel)]="visible">
@@ -40,13 +40,13 @@ import { PopupModule } from '@ciri/ngx-popup'
 </ngx-popup>
 ```
 
-## Set Position
+## 📌 Set Position
 
 ```html
 <ngx-popup [(ngModel)]="visible" position="bottom"></ngx-popup>
 ```
 
-## Custom Animation
+## 🎁 Custom Animation
 
 ```typescript
 import { Component, OnInit } from '@angular/core'
@@ -85,7 +85,7 @@ export class AnimationsComponent implements OnInit {
 }
 ```
 
-## Inputs
+## 🍭 Inputs
 
 | Name                | Type    | Default | Description                                 |
 | ------------------- | ------- | ------- | ------------------------------------------- |
@@ -97,7 +97,7 @@ export class AnimationsComponent implements OnInit {
 | externalClass       | object  | -       | Custom class, equivalent to [ngClass]       |
 | zIndex              | number  | 9999    | Increasing from 9999                        |
 
-## Outputs
+## 🐚 Outputs
 
 | Event        | Description                                                           |
 | ------------ | --------------------------------------------------------------------- |
