@@ -18,7 +18,7 @@ npm i @ciri/ngx-popup
 
 ## 🎉 Quick Start
 
-> Add it to your module:
+Add it to your module:
 
 ```typescript
 import { PopupModule } from '@ciri/ngx-popup'
@@ -32,7 +32,7 @@ import { PopupModule } from '@ciri/ngx-popup'
 })
 ```
 
-> Add to view:
+Add to view:
 
 ```html
 <ngx-popup [(ngModel)]="visible">
