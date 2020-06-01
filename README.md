@@ -1,27 +1,106 @@
-# NgxPopupApp
+# NgxPopup
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 8.3.26.
+An angular popup component that can customize animation.
 
-## Development server
+<p align="center">
+  <img alt="travis" src="https://travis-ci.org/xiaojun1994/ngx-popup.svg?branch=master">&nbsp;
+</p>
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+👉 [Demo](https://stackblitz.com/edit/ngx-popup-demo)
 
-## Code scaffolding
+_PS: There may be animation flashing problems on stackblitz, but my local test will not_
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+## 🚀 Install
 
-## Build
+```bash
+npm i @ciri/ngx-popup
+```
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
+## 🎉 Quick Start
 
-## Running unit tests
+Add it to your module:
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+```typescript
+import { PopupModule } from '@ciri/ngx-popup'
 
-## Running end-to-end tests
+@NgModule({
+  // ...
+  imports: [
+    // ...
+    PopupModule
+  ],
+})
+```
 
-Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
+Add to view:
 
-## Further help
+```html
+<ngx-popup [(ngModel)]="visible">
+  <div style="background: #fff; padding: 50px;">hello world</div>
+</ngx-popup>
+```
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
+## 📌 Set Position
+
+```html
+<ngx-popup [(ngModel)]="visible" position="bottom"></ngx-popup>
+```
+
+## 🎁 Custom Animation
+
+```typescript
+import { Component, OnInit } from '@angular/core'
+import { animate, style } from '@angular/animations'
+
+@Component({
+  selector: 'app-root',
+  template: `
+    <ngx-popup [(ngModel)]="visible" [animations]="animations">
+      <div style="padding: 100px; background: #fff"></div>
+    </ngx-popup>
+
+    <button (click)="show()">show</button>&nbsp;
+  `
+})
+export class AppComponent implements OnInit {
+  visible = false
+  animations = {
+    enter: [
+      style({ opacity: 0, transform: 'scale(0.7)' }),
+      animate('.3s ease', style({ opacity: 1, transform: 'scale(1)' }))
+    ],
+    leave: [
+      style({ opacity: 1, transform: 'scale(1)' }),
+      animate('.3s ease', style({ opacity: 0, transform: 'scale(0.9)' }))
+    ]
+  }
+
+  constructor() {}
+
+  ngOnInit() {}
+
+  show() {
+    this.visible = true
+  }
+}
+```
+
+## 🍭 Inputs
+
+| Name                | Type    | Default | Description                                 |
+| ------------------- | ------- | ------- | ------------------------------------------- |
+| position            | string  | center  | Can be set to `top` `bottom` `right` `left` |
+| animations          | object  | -       | Custom animation                            |
+| overlay             | boolean | true    | Whether to show overlay                     |
+| overlayOpacity      | number  | 0.5     | Set overlay opacity                         |
+| closeOnClickOverlay | boolean | true    | Whether to close when click overlay         |
+| externalClass       | object  | -       | Custom class, equivalent to [ngClass]       |
+| zIndex              | number  | 9999    | Increasing from 9999                        |
+
+## 🐚 Outputs
+
+| Event        | Description                                                           |
+| ------------ | --------------------------------------------------------------------- |
+| clickOverlay | Triggered when click overlay                                          |
+| beforeClose  | Triggered when before closing (Leave animation has not been executed) |
+| afterClose   | Triggered when after closing (Leave animation completed)              |
