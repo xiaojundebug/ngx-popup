@@ -14,7 +14,6 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms'
 import { animate, AnimationMetadata, style } from '@angular/animations'
 import { OverlayService } from '../overlay/overlay.service'
 import { AnimationService } from '../animation.service'
-import { PopupOptions } from './popup-options.provider'
 import nextTick from 'next-tick'
 
 let zIndex = 9999
@@ -31,7 +30,6 @@ export enum Position {
   bottom = 'bottom',
   left   = 'left',
 }
-
 @Component({
   selector: 'ngx-popup',
   templateUrl: './popup.component.html',
@@ -39,7 +37,6 @@ export enum Position {
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [
-    PopupOptions,
     {
       provide: NG_VALUE_ACCESSOR,
       useExisting: forwardRef(() => PopupComponent),

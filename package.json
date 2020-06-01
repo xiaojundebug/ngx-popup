@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
+    "start": "ng serve --port 4203",
+    "dev:lib": "ng build ngx-popup --watch",
     "build": "ng build",
     "build:lib": "ng build ngx-popup && npm run copy-doc",
     "copy-doc": "copyfiles -V -E README.md dist/ngx-popup",
