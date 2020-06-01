@@ -43,7 +43,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
     !*** ./dist/ngx-popup/fesm2015/ciri-ngx-popup.js ***!
     \***************************************************/
 
-  /*! exports provided: PopupComponent, PopupModule, Position, ɵa, ɵb, ɵc, ɵd */
+  /*! exports provided: PopupComponent, PopupModule, Position, ɵa, ɵb, ɵc */
 
   /***/
   function distNgxPopupFesm2015CiriNgxPopupJs(module, __webpack_exports__, __webpack_require__) {
@@ -72,24 +72,18 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
 
     __webpack_require__.d(__webpack_exports__, "ɵa", function () {
-      return PopupOptions;
-    });
-    /* harmony export (binding) */
-
-
-    __webpack_require__.d(__webpack_exports__, "ɵb", function () {
       return OverlayService;
     });
     /* harmony export (binding) */
 
 
-    __webpack_require__.d(__webpack_exports__, "ɵc", function () {
+    __webpack_require__.d(__webpack_exports__, "ɵb", function () {
       return AnimationService;
     });
     /* harmony export (binding) */
 
 
-    __webpack_require__.d(__webpack_exports__, "ɵd", function () {
+    __webpack_require__.d(__webpack_exports__, "ɵc", function () {
       return OverlayComponent;
     });
     /* harmony import */
@@ -524,24 +518,6 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
     if (false) {}
     /**
      * @fileoverview added by tsickle
-     * Generated from: lib/popup/popup-options.provider.ts
-     * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
-     */
-
-
-    var PopupOptions = function PopupOptions() {
-      _classCallCheck(this, PopupOptions);
-
-      this.visible = false;
-    };
-
-    PopupOptions.decorators = [{
-      type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Injectable"]
-    }];
-
-    if (false) {}
-    /**
-     * @fileoverview added by tsickle
      * Generated from: lib/popup/popup.component.ts
      * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
      */
@@ -813,7 +789,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         template: "<div\n  class=\"ngx-popup ngx-popup--{{ position }}\"\n  *ngIf=\"visible\"\n  [ngClass]=\"externalClass\"\n  [style.zIndex]=\"zIndex\"\n>\n  <div class=\"ngx-popup__content\" #container>\n    <ng-content></ng-content>\n  </div>\n</div>\n\n",
         encapsulation: _angular_core__WEBPACK_IMPORTED_MODULE_0__["ViewEncapsulation"].None,
         changeDetection: _angular_core__WEBPACK_IMPORTED_MODULE_0__["ChangeDetectionStrategy"].OnPush,
-        providers: [PopupOptions, {
+        providers: [{
           provide: _angular_forms__WEBPACK_IMPORTED_MODULE_1__["NG_VALUE_ACCESSOR"],
           useExisting: Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["forwardRef"])(
           /**
