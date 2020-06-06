@@ -39,7 +39,7 @@ export class OverlayService {
     const overlay = componentRef.instance
     overlay.opacity = opacity
     overlay.zIndex = zIndex
-    overlay.show = true
+    overlay.visible = true
 
     onClick && overlay.clickOverlay.subscribe(onClick)
 
@@ -48,7 +48,7 @@ export class OverlayService {
     })
 
     return () => {
-      overlay.show = false
+      overlay.visible = false
     }
   }
 }

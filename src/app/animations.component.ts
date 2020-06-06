@@ -19,25 +19,22 @@ export class AnimationsComponent implements OnInit {
   currentAnimations = {}
   animations1 = {
     enter: [
-      style({ opacity: 0, transform: 'scale(0.7)' }),
+      style({ opacity: 0, transform: 'scale(2)' }),
       animate('.3s ease', style({ opacity: 1, transform: 'scale(1)' }))
     ],
     leave: [
       style({ opacity: 1, transform: 'scale(1)' }),
-      animate('.3s ease', style({ opacity: 0, transform: 'scale(0.9)' }))
+      animate('.3s ease', style({ opacity: 0, transform: 'scale(2)' }))
     ]
   }
   animations2 = {
     enter: [
-      style({ opacity: 0, transform: 'translate3d(0, -100%, 0)' }),
-      animate(
-        '.5s cubic-bezier(.45,.47,.22,1.4)',
-        style({ opacity: 1, transform: 'translate3d(0, 0, 0)' })
-      )
+      style({ opacity: 0, transform: 'translate3d(0, -150%, 0)' }),
+      animate('.6s cubic-bezier(.57,.62,.23,1.23)', style({ opacity: 1, transform: 'translate3d(0, 0, 0)' }))
     ],
     leave: [
       style({ opacity: 1, transform: 'translate3d(0, 0, 0)' }),
-      animate('.3s ease', style({ opacity: 0, transform: 'translate3d(0, -100%, 0)' }))
+      animate('.3s ease', style({ opacity: 0, transform: 'translate3d(0, -150%, 0)' }))
     ]
   }
 

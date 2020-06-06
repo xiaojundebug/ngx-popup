@@ -5,14 +5,16 @@ import {
   EventEmitter,
   HostListener,
   Input,
+  OnDestroy,
   OnInit,
   Output,
   ViewChild,
   ViewEncapsulation
 } from '@angular/core'
-import { AnimationService } from '../animation.service'
 import { animate, style } from '@angular/animations'
-import nextTick from 'next-tick'
+import { takeUntil } from 'rxjs/operators'
+import { Subject } from 'rxjs'
+import { AnimationService } from '../animation.service'
 
 @Component({
   selector: 'overlay',
@@ -21,27 +23,27 @@ import nextTick from 'next-tick'
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class OverlayComponent implements OnInit {
+export class OverlayComponent implements OnInit, OnDestroy {
   @Input() zIndex: number
   @Input() opacity: number = 0.5
   @Input()
-  set show(value: boolean) {
+  set visible(value: boolean) {
     if (value) {
-      this._show = true
+      this._visible = true
       this.cdr.detectChanges()
-      nextTick(() => {
-        this.makeAnimation('enter')
-      })
+      this.makeAnimation('enter')
     } else {
-      this.makeAnimation('leave').subscribe(() => {
-        this._show = false
-        this.cdr.detectChanges()
-        this.afterClose.emit()
-      })
+      this.makeAnimation('leave')
+        .pipe(takeUntil(this.destroy$))
+        .subscribe(() => {
+          this._visible = false
+          this.cdr.detectChanges()
+          this.afterClose.emit()
+        })
     }
   }
-  get show() {
-    return this._show
+  get visible() {
+    return this._visible
   }
 
   @Output() clickOverlay = new EventEmitter<any>()
@@ -56,11 +58,17 @@ export class OverlayComponent implements OnInit {
     }
   }
 
-  private _show = false
+  private _visible = false
+  private destroy$ = new Subject<any>()
 
   constructor(private animation: AnimationService, private cdr: ChangeDetectorRef) {}
 
   ngOnInit() {}
+
+  ngOnDestroy() {
+    this.destroy$.next()
+    this.destroy$.complete()
+  }
 
   onClick() {
     this.clickOverlay.emit()

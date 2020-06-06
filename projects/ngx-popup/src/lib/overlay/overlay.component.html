@@ -1,7 +1,7 @@
 <div
   class="l-overlay"
   #container
-  *ngIf="show"
+  [hidden]="!visible"
   [ngStyle]="styles"
   (click)="onClick()"
 ></div>
