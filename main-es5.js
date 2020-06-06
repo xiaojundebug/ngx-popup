@@ -113,13 +113,9 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
     /* harmony import */
 
 
-    var next_tick__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
-    /*! next-tick */
-    "./node_modules/next-tick/index.js");
-    /* harmony import */
-
-
-    var next_tick__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(next_tick__WEBPACK_IMPORTED_MODULE_4__);
+    var rxjs_operators__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
+    /*! rxjs/operators */
+    "./node_modules/rxjs/_esm2015/operators/index.js");
     /* harmony import */
 
 
@@ -161,26 +157,45 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
           /** @type {?} */
 
           var player = myAnimation.create(element);
+          /** @type {?} */
+
+          var obs;
           player.play();
+          player.onDone(
+          /**
+          * @return {?}
+          */
+          function () {
+            if (obs) {
+              obs.next();
+              obs.complete();
+            } else {
+              destroy();
+            }
+          });
+          /**
+           * @return {?}
+           */
+
+          function destroy() {
+            try {
+              player.destroy();
+            } catch (e) {}
+          }
+
           return new rxjs__WEBPACK_IMPORTED_MODULE_3__["Observable"](
           /**
           * @param {?} observer
           * @return {?}
           */
           function (observer) {
-            player.onDone(
-            /**
-            * @return {?}
-            */
-            function () {
-              observer.next();
-            });
+            obs = observer;
             return (
               /**
               * @return {?}
               */
               function () {
-                player.destroy();
+                destroy();
               }
             );
           });
@@ -235,7 +250,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         this.opacity = 0.5;
         this.clickOverlay = new _angular_core__WEBPACK_IMPORTED_MODULE_0__["EventEmitter"]();
         this.afterClose = new _angular_core__WEBPACK_IMPORTED_MODULE_0__["EventEmitter"]();
-        this._show = false;
+        this._visible = false;
+        this.destroy$ = new rxjs__WEBPACK_IMPORTED_MODULE_3__["Subject"]();
       }
       /**
        * @param {?} value
@@ -250,6 +266,16 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
          * @return {?}
          */
         value: function ngOnInit() {}
+        /**
+         * @return {?}
+         */
+
+      }, {
+        key: "ngOnDestroy",
+        value: function ngOnDestroy() {
+          this.destroy$.next();
+          this.destroy$.complete();
+        }
         /**
          * @return {?}
          */
@@ -296,27 +322,21 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
           return this.animation.makeAnimation(el, animation);
         }
       }, {
-        key: "show",
+        key: "visible",
         set: function set(value) {
           var _this = this;
 
           if (value) {
-            this._show = true;
+            this._visible = true;
             this.cdr.detectChanges();
-            next_tick__WEBPACK_IMPORTED_MODULE_4___default()(
-            /**
-            * @return {?}
-            */
-            function () {
-              _this.makeAnimation('enter');
-            });
+            this.makeAnimation('enter');
           } else {
-            this.makeAnimation('leave').subscribe(
+            this.makeAnimation('leave').pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_4__["takeUntil"])(this.destroy$)).subscribe(
             /**
             * @return {?}
             */
             function () {
-              _this._show = false;
+              _this._visible = false;
 
               _this.cdr.detectChanges();
 
@@ -329,7 +349,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
          */
         ,
         get: function get() {
-          return this._show;
+          return this._visible;
         }
         /**
          * @return {?}
@@ -352,7 +372,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Component"],
       args: [{
         selector: 'overlay',
-        template: "<div\n  class=\"l-overlay\"\n  #container\n  *ngIf=\"show\"\n  [ngStyle]=\"styles\"\n  (click)=\"onClick()\"\n></div>\n",
+        template: "<div\n  class=\"l-overlay\"\n  #container\n  [hidden]=\"!visible\"\n  [ngStyle]=\"styles\"\n  (click)=\"onClick()\"\n></div>\n",
         encapsulation: _angular_core__WEBPACK_IMPORTED_MODULE_0__["ViewEncapsulation"].None,
         changeDetection: _angular_core__WEBPACK_IMPORTED_MODULE_0__["ChangeDetectionStrategy"].OnPush,
         styles: [".l-overlay{position:fixed;top:0;right:0;bottom:0;left:0}"]
@@ -375,7 +395,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       opacity: [{
         type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Input"]
       }],
-      show: [{
+      visible: [{
         type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Input"]
       }],
       clickOverlay: [{
@@ -458,7 +478,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
           var overlay = componentRef.instance;
           overlay.opacity = opacity;
           overlay.zIndex = zIndex;
-          overlay.show = true;
+          overlay.visible = true;
           onClick && overlay.clickOverlay.subscribe(onClick);
           overlay.afterClose.subscribe(
           /**
@@ -472,7 +492,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
             * @return {?}
             */
             function () {
-              overlay.show = false;
+              overlay.visible = false;
             }
           );
         }
@@ -545,7 +565,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
     };
 
     var PopupComponent = /*#__PURE__*/function () {
-      // 是否处于离场动画中
+      // 是否处于动画中
 
       /**
        * @param {?} cdr
@@ -558,17 +578,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         this.cdr = cdr;
         this.overlayService = overlayService;
         this.animation = animation;
-        this.clickOverlay = new _angular_core__WEBPACK_IMPORTED_MODULE_0__["EventEmitter"](); // 点击蒙版时触发（处于离场动画中无效）
-        // 点击蒙版时触发（处于离场动画中无效）
-
-        this.beforeClose = new _angular_core__WEBPACK_IMPORTED_MODULE_0__["EventEmitter"](); // 关闭之前触发（还未执行离场动画）
-        // 关闭之前触发（还未执行离场动画）
-
-        this.afterClose = new _angular_core__WEBPACK_IMPORTED_MODULE_0__["EventEmitter"](); // 关闭之后触发（离场动画执行完毕）
-        // 关闭之后触发（离场动画执行完毕）
-
-        this.externalClass = {}; // 自定义类名
-        // 自定义类名
+        this.position = Position.center; // 弹窗位置
+        // 弹窗位置
 
         this.animations = {}; // 自定义动画
         // 自定义动画
@@ -585,7 +596,24 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         this.zIndex = zIndex++; // 同 css z-index
         // 同 css z-index
 
-        this.position = Position.center; // 弹窗位置
+        this.externalClass = {}; // 自定义类名
+        // 自定义类名
+
+        this.clickOverlay = new _angular_core__WEBPACK_IMPORTED_MODULE_0__["EventEmitter"](); // 点击蒙版时触发（处于动画中无效）
+        // 点击蒙版时触发（处于动画中无效）
+
+        this.beforeOpen = new _angular_core__WEBPACK_IMPORTED_MODULE_0__["EventEmitter"](); // 打开之前触发（还未执行进场动画）
+        // 打开之前触发（还未执行进场动画）
+
+        this.afterOpen = new _angular_core__WEBPACK_IMPORTED_MODULE_0__["EventEmitter"](); // 打开之后触发（进场动画执行完毕）
+        // 打开之后触发（进场动画执行完毕）
+
+        this.beforeClose = new _angular_core__WEBPACK_IMPORTED_MODULE_0__["EventEmitter"](); // 关闭之前触发（还未执行离场动画）
+        // 关闭之前触发（还未执行离场动画）
+
+        this.afterClose = new _angular_core__WEBPACK_IMPORTED_MODULE_0__["EventEmitter"](); // 关闭之后触发（离场动画执行完毕）
+
+        this.destroy$ = new rxjs__WEBPACK_IMPORTED_MODULE_3__["Subject"]();
 
         this.change =
         /**
@@ -595,12 +623,22 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         function (value) {};
       }
       /**
-       * @param {?} fn
        * @return {?}
        */
 
 
       _createClass(PopupComponent, [{
+        key: "ngOnDestroy",
+        value: function ngOnDestroy() {
+          this.destroy$.next();
+          this.destroy$.complete();
+        }
+        /**
+         * @param {?} fn
+         * @return {?}
+         */
+
+      }, {
         key: "registerOnChange",
         value: function registerOnChange(fn) {
           this.change = fn;
@@ -621,8 +659,6 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       }, {
         key: "writeValue",
         value: function writeValue(value) {
-          var _this2 = this;
-
           if (value === null) {
             return;
           }
@@ -631,40 +667,14 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
             return;
           }
 
-          if (this.leaving && !value) {
+          if (this.animating) {
             return;
           }
 
           if (value) {
-            this.visible = true;
-            this.change(this.visible);
-            this.cdr.detectChanges();
-            this.overlay && this.openOverlay();
-            next_tick__WEBPACK_IMPORTED_MODULE_4___default()(
-            /**
-            * @return {?}
-            */
-            function () {
-              _this2.makeAnimation('enter');
-            });
+            this.open();
           } else {
-            this.leaving = true;
-            this.beforeClose.emit();
-            this.overlay && this.closeOverlay();
-            this.makeAnimation('leave').subscribe(
-            /**
-            * @return {?}
-            */
-            function () {
-              _this2.leaving = false;
-              _this2.visible = false;
-
-              _this2.change(_this2.visible);
-
-              _this2.cdr.detectChanges();
-
-              _this2.afterClose.emit();
-            });
+            this.close();
           }
 
           this.dirty = true;
@@ -675,9 +685,63 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
          */
 
       }, {
+        key: "open",
+        value: function open() {
+          var _this2 = this;
+
+          this.visible = true;
+          this.cdr.detectChanges();
+          this.change(this.visible);
+          this.beforeOpen.emit();
+          this.overlay && this.openOverlay();
+          this.animating = true;
+          this.makeAnimation('enter').pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_4__["takeUntil"])(this.destroy$)).subscribe(
+          /**
+          * @return {?}
+          */
+          function () {
+            _this2.animating = false;
+
+            _this2.afterOpen.emit();
+          });
+        }
+        /**
+         * @private
+         * @return {?}
+         */
+
+      }, {
+        key: "close",
+        value: function close() {
+          var _this3 = this;
+
+          this.beforeClose.emit();
+          this.overlay && this.closeOverlay();
+          this.animating = true;
+          this.makeAnimation('leave').pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_4__["takeUntil"])(this.destroy$)).subscribe(
+          /**
+          * @return {?}
+          */
+          function () {
+            _this3.animating = false;
+            _this3.visible = false;
+
+            _this3.cdr.detectChanges();
+
+            _this3.change(_this3.visible);
+
+            _this3.afterClose.emit();
+          });
+        }
+        /**
+         * @private
+         * @return {?}
+         */
+
+      }, {
         key: "openOverlay",
         value: function openOverlay() {
-          var _this3 = this;
+          var _this4 = this;
 
           this.closeOverlay = this.overlayService.open({
             opacity: this.overlayOpacity,
@@ -687,13 +751,13 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
             * @return {?}
             */
             function onClick() {
-              if (_this3.leaving) {
+              if (_this4.animating) {
                 return;
               }
 
-              _this3.clickOverlay.emit();
+              _this4.clickOverlay.emit();
 
-              _this3.closeOnClickOverlay && _this3.writeValue(false);
+              _this4.closeOnClickOverlay && _this4.writeValue(false);
             }
           });
         }
@@ -786,7 +850,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Component"],
       args: [{
         selector: 'ngx-popup',
-        template: "<div\n  class=\"ngx-popup ngx-popup--{{ position }}\"\n  *ngIf=\"visible\"\n  [ngClass]=\"externalClass\"\n  [style.zIndex]=\"zIndex\"\n>\n  <div class=\"ngx-popup__content\" #container>\n    <ng-content></ng-content>\n  </div>\n</div>\n\n",
+        template: "<div\n  class=\"ngx-popup ngx-popup--{{ position }}\"\n  [hidden]=\"!visible\"\n  [ngClass]=\"externalClass\"\n  [style.zIndex]=\"zIndex\"\n>\n  <div class=\"ngx-popup__content\" #container>\n    <ng-content></ng-content>\n  </div>\n</div>\n\n",
         encapsulation: _angular_core__WEBPACK_IMPORTED_MODULE_0__["ViewEncapsulation"].None,
         changeDetection: _angular_core__WEBPACK_IMPORTED_MODULE_0__["ChangeDetectionStrategy"].OnPush,
         providers: [{
@@ -816,16 +880,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
     };
 
     PopupComponent.propDecorators = {
-      clickOverlay: [{
-        type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Output"]
-      }],
-      beforeClose: [{
-        type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Output"]
-      }],
-      afterClose: [{
-        type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Output"]
-      }],
-      externalClass: [{
+      position: [{
         type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Input"]
       }],
       animations: [{
@@ -843,8 +898,23 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       zIndex: [{
         type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Input"]
       }],
-      position: [{
+      externalClass: [{
         type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Input"]
+      }],
+      clickOverlay: [{
+        type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Output"]
+      }],
+      beforeOpen: [{
+        type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Output"]
+      }],
+      afterOpen: [{
+        type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Output"]
+      }],
+      beforeClose: [{
+        type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Output"]
+      }],
+      afterClose: [{
+        type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Output"]
       }],
       container: [{
         type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["ViewChild"],
@@ -907,7 +977,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
     /* harmony default export */
 
 
-    __webpack_exports__["default"] = "<h3>基本用法</h3>\n<base-demo></base-demo>\n\n<h3>设置方向</h3>\n<position-demo></position-demo>\n\n<h3>自定义动画</h3>\n<animations-demo></animations-demo>\n";
+    __webpack_exports__["default"] = "<h3>Basic Usage</h3>\n<base-demo></base-demo>\n\n<h3>Set Position</h3>\n<position-demo></position-demo>\n\n<h3>Custom Animation</h3>\n<animations-demo></animations-demo>\n";
     /***/
   },
 
@@ -1562,7 +1632,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         this.animations1 = {
           enter: [Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["style"])({
             opacity: 0,
-            transform: 'scale(0.7)'
+            transform: 'scale(2)'
           }), Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["animate"])('.3s ease', Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["style"])({
             opacity: 1,
             transform: 'scale(1)'
@@ -1572,14 +1642,14 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
             transform: 'scale(1)'
           }), Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["animate"])('.3s ease', Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["style"])({
             opacity: 0,
-            transform: 'scale(0.9)'
+            transform: 'scale(2)'
           }))]
         };
         this.animations2 = {
           enter: [Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["style"])({
             opacity: 0,
-            transform: 'translate3d(0, -100%, 0)'
-          }), Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["animate"])('.5s cubic-bezier(.45,.47,.22,1.4)', Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["style"])({
+            transform: 'translate3d(0, -150%, 0)'
+          }), Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["animate"])('.6s cubic-bezier(.57,.62,.23,1.23)', Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["style"])({
             opacity: 1,
             transform: 'translate3d(0, 0, 0)'
           }))],
@@ -1588,7 +1658,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
             transform: 'translate3d(0, 0, 0)'
           }), Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["animate"])('.3s ease', Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["style"])({
             opacity: 0,
-            transform: 'translate3d(0, -100%, 0)'
+            transform: 'translate3d(0, -150%, 0)'
           }))]
         };
       }
