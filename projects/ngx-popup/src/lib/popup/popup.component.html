@@ -1,6 +1,6 @@
 <div
   class="ngx-popup ngx-popup--{{ position }}"
-  *ngIf="visible"
+  [hidden]="!visible"
   [ngClass]="externalClass"
   [style.zIndex]="zIndex"
 >

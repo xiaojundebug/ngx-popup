@@ -2,13 +2,13 @@
 
 An angular popup component that can customize animation.
 
+_development environment: angular 8.2.14_
+
 <p align="center">
   <img alt="travis" src="https://travis-ci.org/xiaojun1994/ngx-popup.svg?branch=master">&nbsp;
 </p>
 
 👉 [Demo](https://stackblitz.com/edit/ngx-popup-demo)
-
-_PS: There may be animation flashing problems on stackblitz, but my local test will not_
 
 ## 🚀 Install
 
@@ -21,12 +21,14 @@ npm i @ciri/ngx-popup
 Add it to your module:
 
 ```typescript
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations'
 import { PopupModule } from '@ciri/ngx-popup'
 
 @NgModule({
   // ...
   imports: [
     // ...
+    BrowserAnimationsModule,
     PopupModule
   ],
 })
@@ -102,5 +104,7 @@ export class AppComponent implements OnInit {
 | Event        | Description                                                           |
 | ------------ | --------------------------------------------------------------------- |
 | clickOverlay | Triggered when click overlay                                          |
+| beforeOpen   | Triggered when before opening (Enter animation has not been executed) |
+| afterOpen    | Triggered when after opening (Enter animation completed)              |
 | beforeClose  | Triggered when before closing (Leave animation has not been executed) |
 | afterClose   | Triggered when after closing (Leave animation completed)              |

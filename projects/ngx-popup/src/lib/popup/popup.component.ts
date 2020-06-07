@@ -5,16 +5,17 @@ import {
   ElementRef,
   EventEmitter,
   forwardRef,
-  Input,
+  Input, OnDestroy,
   Output,
   ViewChild,
   ViewEncapsulation,
-} from '@angular/core'
+} from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms'
 import { animate, AnimationMetadata, style } from '@angular/animations'
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { OverlayService } from '../overlay/overlay.service'
 import { AnimationService } from '../animation.service'
-import nextTick from 'next-tick'
 
 let zIndex = 9999
 
@@ -44,26 +45,29 @@ export enum Position {
     }
   ]
 })
-export class PopupComponent implements ControlValueAccessor {
-  @Output() clickOverlay = new EventEmitter<any>() // 点击蒙版时触发（处于离场动画中无效）
-  @Output() beforeClose = new EventEmitter<any>()  // 关闭之前触发（还未执行离场动画）
-  @Output() afterClose = new EventEmitter<any>()   // 关闭之后触发（离场动画执行完毕）
-
-  @Input() externalClass: object = {}              // 自定义类名
+export class PopupComponent implements ControlValueAccessor, OnDestroy {
+  @Input() position: Position = Position.center    // 弹窗位置
   @Input() animations: PopupAnimations = {}        // 自定义动画
   @Input() overlay: boolean = true                 // 是否显示蒙版
   @Input() overlayOpacity: number = 0.5            // 蒙版透明度 0~1
   @Input() closeOnClickOverlay: boolean = true     // 是否允许点击蒙版时自动关闭弹框
   @Input() zIndex: number = zIndex++               // 同 css z-index
-  @Input() position: Position = Position.center    // 弹窗位置
+  @Input() externalClass: object = {}              // 自定义类名
+
+  @Output() clickOverlay = new EventEmitter<any>() // 点击蒙版时触发（处于动画中无效）
+  @Output() beforeOpen = new EventEmitter<any>()   // 打开之前触发（还未执行进场动画）
+  @Output() afterOpen = new EventEmitter<any>()    // 打开之后触发（进场动画执行完毕）
+  @Output() beforeClose = new EventEmitter<any>()  // 关闭之前触发（还未执行离场动画）
+  @Output() afterClose = new EventEmitter<any>()   // 关闭之后触发（离场动画执行完毕）
 
   @ViewChild('container', { static: false }) container: ElementRef
 
   visible: boolean
 
+  private destroy$ = new Subject<any>()
   private dirty: boolean
   private closeOverlay: () => void
-  private leaving: boolean // 是否处于离场动画中
+  private animating: boolean // 是否处于动画中
 
   constructor(
     private cdr: ChangeDetectorRef,
@@ -71,39 +75,59 @@ export class PopupComponent implements ControlValueAccessor {
     private animation: AnimationService,
   ) {}
 
-  change = (value: any) => {}
-
-  registerOnChange(fn: any) {
-    this.change = fn;
+  ngOnDestroy() {
+    this.destroy$.next()
+    this.destroy$.complete()
   }
+
+  change = (value: any) => { }
+
+  registerOnChange(fn: any) { this.change = fn }
 
   registerOnTouched(fn: any) { }
 
   writeValue(value: boolean) {
     if (value === null) { return }
     if (!this.dirty && !value) { return }
-    if (this.leaving && !value) { return }
+    if (this.animating) { return }
 
     if (value) {
-      this.visible = true
-      this.change(this.visible)
-      this.cdr.detectChanges()
-      this.overlay && this.openOverlay()
-      nextTick(() => { this.makeAnimation('enter') })
+      this.open()
     } else {
-      this.leaving = true
-      this.beforeClose.emit()
-      this.overlay && this.closeOverlay()
-      this.makeAnimation('leave').subscribe(() => {
-        this.leaving = false
-        this.visible = false
-        this.change(this.visible)
-        this.cdr.detectChanges()
-        this.afterClose.emit()
-      })
+      this.close()
     }
 
     this.dirty = true
+  }
+
+  private open() {
+    this.visible = true
+    this.cdr.detectChanges()
+    this.change(this.visible)
+    this.beforeOpen.emit()
+    this.overlay && this.openOverlay()
+    this.animating = true
+    this.makeAnimation('enter')
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.animating = false
+        this.afterOpen.emit()
+      })
+  }
+
+  private close() {
+    this.beforeClose.emit()
+    this.overlay && this.closeOverlay()
+    this.animating = true
+    this.makeAnimation('leave')
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.animating = false
+        this.visible = false
+        this.cdr.detectChanges()
+        this.change(this.visible)
+        this.afterClose.emit()
+      })
   }
 
   private openOverlay() {
@@ -111,7 +135,7 @@ export class PopupComponent implements ControlValueAccessor {
       opacity: this.overlayOpacity,
       zIndex: this.zIndex,
       onClick: () => {
-        if (this.leaving) {
+        if (this.animating) {
           return
         }
         this.clickOverlay.emit()
