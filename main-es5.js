@@ -372,10 +372,10 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Component"],
       args: [{
         selector: 'overlay',
-        template: "<div\n  class=\"l-overlay\"\n  #container\n  [hidden]=\"!visible\"\n  [ngStyle]=\"styles\"\n  (click)=\"onClick()\"\n></div>\n",
+        template: "<div\n  class=\"overlay\"\n  #container\n  [hidden]=\"!visible\"\n  [ngStyle]=\"styles\"\n  (click)=\"onClick()\"\n></div>\n",
         encapsulation: _angular_core__WEBPACK_IMPORTED_MODULE_0__["ViewEncapsulation"].None,
         changeDetection: _angular_core__WEBPACK_IMPORTED_MODULE_0__["ChangeDetectionStrategy"].OnPush,
-        styles: [".l-overlay{position:fixed;top:0;right:0;bottom:0;left:0}"]
+        styles: [".overlay{position:fixed;top:0;right:0;bottom:0;left:0}"]
       }]
     }];
     /** @nocollapse */
@@ -751,7 +751,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
             * @return {?}
             */
             function onClick() {
-              if (_this4.animating) {
+              if (!_this4.visible || _this4.animating) {
                 return;
               }
 
