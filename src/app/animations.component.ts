@@ -30,11 +30,11 @@ export class AnimationsComponent implements OnInit {
   animations2 = {
     enter: [
       style({ opacity: 0, transform: 'translate3d(0, -150%, 0)' }),
-      animate('.6s cubic-bezier(.57,.62,.23,1.23)', style({ opacity: 1, transform: 'translate3d(0, 0, 0)' }))
+      animate('.0s cubic-bezier(.57,.62,.23,1.23)', style({ opacity: 1, transform: 'translate3d(0, 0, 0)' }))
     ],
     leave: [
       style({ opacity: 1, transform: 'translate3d(0, 0, 0)' }),
-      animate('.3s ease', style({ opacity: 0, transform: 'translate3d(0, -150%, 0)' }))
+      animate('.0s ease', style({ opacity: 0, transform: 'translate3d(0, -150%, 0)' }))
     ]
   }
 

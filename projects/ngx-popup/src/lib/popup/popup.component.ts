@@ -135,7 +135,7 @@ export class PopupComponent implements ControlValueAccessor, OnDestroy {
       opacity: this.overlayOpacity,
       zIndex: this.zIndex,
       onClick: () => {
-        if (this.animating) {
+        if (!this.visible || this.animating) {
           return
         }
         this.clickOverlay.emit()
