@@ -12,8 +12,8 @@ import {
   ViewEncapsulation
 } from '@angular/core'
 import { animate, style } from '@angular/animations'
+import { Subject, Subscription } from 'rxjs'
 import { takeUntil } from 'rxjs/operators'
-import { Subject } from 'rxjs'
 import { AnimationService } from '../animation.service'
 
 @Component({
@@ -31,9 +31,11 @@ export class OverlayComponent implements OnInit, OnDestroy {
     if (value) {
       this._visible = true
       this.cdr.detectChanges()
-      this.makeAnimation('enter')
+      this.animationSub = this.makeAnimation('enter')
+        .pipe(takeUntil(this.destroy$))
+        .subscribe(() => { })
     } else {
-      this.makeAnimation('leave')
+      this.animationSub = this.makeAnimation('leave')
         .pipe(takeUntil(this.destroy$))
         .subscribe(() => {
           this._visible = false
@@ -60,6 +62,7 @@ export class OverlayComponent implements OnInit, OnDestroy {
 
   private _visible = false
   private destroy$ = new Subject<any>()
+  private animationSub: Subscription
 
   constructor(private animation: AnimationService, private cdr: ChangeDetectorRef) {}
 
@@ -86,6 +89,7 @@ export class OverlayComponent implements OnInit, OnDestroy {
       ? [style({ opacity: 0 }), animate('.3s ease', style({ opacity: 1 }))]
       : [style({ opacity: 1 }), animate('.3s ease', style({ opacity: 0 }))]
 
+    this.animationSub && this.animationSub.unsubscribe()
     return this.animation.makeAnimation(el, animation)
   }
 }

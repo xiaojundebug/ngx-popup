@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core'
 import { AnimationBuilder } from '@angular/animations'
-import { Observable, Subscriber } from 'rxjs'
+import { Observable } from 'rxjs'
 
 @Injectable({
   providedIn: 'root'
@@ -14,29 +14,17 @@ export class AnimationService {
 
     // use the returned factory object to create a player
     const player = myAnimation.create(element)
-    let obs: Subscriber<any>
 
     player.play()
 
-    player.onDone(() => {
-      if (obs) {
-        obs.next()
-        obs.complete()
-      } else {
-        destroy()
-      }
-    })
-
-    function destroy() {
-      try {
-        player.destroy()
-      } catch (e) {}
-    }
-
     return new Observable<any>(observer => {
-      obs = observer
+      player.onDone(() => {
+        observer.next()
+        observer.complete()
+      })
+
       return () => {
-        destroy()
+        player.destroy()
       }
     })
   }

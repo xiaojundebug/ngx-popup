@@ -12,7 +12,7 @@ import {
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms'
 import { animate, AnimationMetadata, style } from '@angular/animations'
-import { Subject } from 'rxjs';
+import {Subject, Subscription} from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { OverlayService } from '../overlay/overlay.service'
 import { AnimationService } from '../animation.service'
@@ -67,7 +67,8 @@ export class PopupComponent implements ControlValueAccessor, OnDestroy {
   private destroy$ = new Subject<any>()
   private dirty: boolean
   private closeOverlay: () => void
-  private animating: boolean // 是否处于动画中
+  private animationSub: Subscription
+  private leaving = false
 
   constructor(
     private cdr: ChangeDetectorRef,
@@ -89,7 +90,7 @@ export class PopupComponent implements ControlValueAccessor, OnDestroy {
   writeValue(value: boolean) {
     if (value === null) { return }
     if (!this.dirty && !value) { return }
-    if (this.animating) { return }
+    if (this.animationSub) { this.animationSub.unsubscribe() }
 
     if (value) {
       this.open()
@@ -97,36 +98,34 @@ export class PopupComponent implements ControlValueAccessor, OnDestroy {
       this.close()
     }
 
+    this.change(value)
     this.dirty = true
   }
 
   private open() {
     this.visible = true
     this.cdr.detectChanges()
-    this.change(this.visible)
     this.beforeOpen.emit()
+    this.leaving = false
     this.overlay && this.openOverlay()
-    this.animating = true
-    this.makeAnimation('enter')
+    this.animationSub = this.makeAnimation('enter')
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => {
-        this.animating = false
         this.afterOpen.emit()
       })
   }
 
   private close() {
     this.beforeClose.emit()
+    this.leaving = true
     this.overlay && this.closeOverlay()
-    this.animating = true
-    this.makeAnimation('leave')
+    this.animationSub = this.makeAnimation('leave')
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => {
-        this.animating = false
         this.visible = false
         this.cdr.detectChanges()
-        this.change(this.visible)
         this.afterClose.emit()
+        this.leaving = false
       })
   }
 
@@ -135,11 +134,13 @@ export class PopupComponent implements ControlValueAccessor, OnDestroy {
       opacity: this.overlayOpacity,
       zIndex: this.zIndex,
       onClick: () => {
-        if (!this.visible || this.animating) {
+        if (!this.visible) {
           return
         }
         this.clickOverlay.emit()
-        this.closeOnClickOverlay && this.writeValue(false)
+        if (this.closeOnClickOverlay && !this.leaving) {
+          this.writeValue(false)
+        }
       }
     })
   }
