@@ -77,41 +77,24 @@ class AnimationService {
         // use the returned factory object to create a player
         /** @type {?} */
         const player = myAnimation.create(element);
-        /** @type {?} */
-        let obs;
         player.play();
-        player.onDone((/**
-         * @return {?}
-         */
-        () => {
-            if (obs) {
-                obs.next();
-                obs.complete();
-            }
-            else {
-                destroy();
-            }
-        }));
-        /**
-         * @return {?}
-         */
-        function destroy() {
-            try {
-                player.destroy();
-            }
-            catch (e) { }
-        }
         return new rxjs__WEBPACK_IMPORTED_MODULE_3__["Observable"]((/**
          * @param {?} observer
          * @return {?}
          */
         observer => {
-            obs = observer;
+            player.onDone((/**
+             * @return {?}
+             */
+            () => {
+                observer.next();
+                observer.complete();
+            }));
             return (/**
              * @return {?}
              */
             () => {
-                destroy();
+                player.destroy();
             });
         }));
     }
@@ -155,10 +138,15 @@ class OverlayComponent {
         if (value) {
             this._visible = true;
             this.cdr.detectChanges();
-            this.makeAnimation('enter');
+            this.animationSub = this.makeAnimation('enter')
+                .pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_4__["takeUntil"])(this.destroy$))
+                .subscribe((/**
+             * @return {?}
+             */
+            () => { }));
         }
         else {
-            this.makeAnimation('leave')
+            this.animationSub = this.makeAnimation('leave')
                 .pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_4__["takeUntil"])(this.destroy$))
                 .subscribe((/**
              * @return {?}
@@ -222,6 +210,7 @@ class OverlayComponent {
         const animation = isEnter
             ? [Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["style"])({ opacity: 0 }), Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["animate"])('.3s ease', Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["style"])({ opacity: 1 }))]
             : [Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["style"])({ opacity: 1 }), Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["animate"])('.3s ease', Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["style"])({ opacity: 0 }))];
+        this.animationSub && this.animationSub.unsubscribe();
         return this.animation.makeAnimation(el, animation);
     }
 }
@@ -345,7 +334,6 @@ const Position = {
     left: "left",
 };
 class PopupComponent {
-    // 是否处于动画中
     /**
      * @param {?} cdr
      * @param {?} overlayService
@@ -379,6 +367,7 @@ class PopupComponent {
         // 关闭之前触发（还未执行离场动画）
         this.afterClose = new _angular_core__WEBPACK_IMPORTED_MODULE_0__["EventEmitter"](); // 关闭之后触发（离场动画执行完毕）
         this.destroy$ = new rxjs__WEBPACK_IMPORTED_MODULE_3__["Subject"]();
+        this.leaving = false;
         this.change = (/**
          * @param {?} value
          * @return {?}
@@ -413,8 +402,8 @@ class PopupComponent {
         if (!this.dirty && !value) {
             return;
         }
-        if (this.animating) {
-            return;
+        if (this.animationSub) {
+            this.animationSub.unsubscribe();
         }
         if (value) {
             this.open();
@@ -422,6 +411,7 @@ class PopupComponent {
         else {
             this.close();
         }
+        this.change(value);
         this.dirty = true;
     }
     /**
@@ -431,17 +421,15 @@ class PopupComponent {
     open() {
         this.visible = true;
         this.cdr.detectChanges();
-        this.change(this.visible);
         this.beforeOpen.emit();
+        this.leaving = false;
         this.overlay && this.openOverlay();
-        this.animating = true;
-        this.makeAnimation('enter')
+        this.animationSub = this.makeAnimation('enter')
             .pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_4__["takeUntil"])(this.destroy$))
             .subscribe((/**
          * @return {?}
          */
         () => {
-            this.animating = false;
             this.afterOpen.emit();
         }));
     }
@@ -451,19 +439,18 @@ class PopupComponent {
      */
     close() {
         this.beforeClose.emit();
+        this.leaving = true;
         this.overlay && this.closeOverlay();
-        this.animating = true;
-        this.makeAnimation('leave')
+        this.animationSub = this.makeAnimation('leave')
             .pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_4__["takeUntil"])(this.destroy$))
             .subscribe((/**
          * @return {?}
          */
         () => {
-            this.animating = false;
             this.visible = false;
             this.cdr.detectChanges();
-            this.change(this.visible);
             this.afterClose.emit();
+            this.leaving = false;
         }));
     }
     /**
@@ -478,11 +465,13 @@ class PopupComponent {
              * @return {?}
              */
             () => {
-                if (!this.visible || this.animating) {
+                if (!this.visible) {
                     return;
                 }
                 this.clickOverlay.emit();
-                this.closeOnClickOverlay && this.writeValue(false);
+                if (this.closeOnClickOverlay && !this.leaving) {
+                    this.writeValue(false);
+                }
             })
         });
     }

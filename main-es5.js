@@ -157,45 +157,27 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
           /** @type {?} */
 
           var player = myAnimation.create(element);
-          /** @type {?} */
-
-          var obs;
           player.play();
-          player.onDone(
-          /**
-          * @return {?}
-          */
-          function () {
-            if (obs) {
-              obs.next();
-              obs.complete();
-            } else {
-              destroy();
-            }
-          });
-          /**
-           * @return {?}
-           */
-
-          function destroy() {
-            try {
-              player.destroy();
-            } catch (e) {}
-          }
-
           return new rxjs__WEBPACK_IMPORTED_MODULE_3__["Observable"](
           /**
           * @param {?} observer
           * @return {?}
           */
           function (observer) {
-            obs = observer;
+            player.onDone(
+            /**
+            * @return {?}
+            */
+            function () {
+              observer.next();
+              observer.complete();
+            });
             return (
               /**
               * @return {?}
               */
               function () {
-                destroy();
+                player.destroy();
               }
             );
           });
@@ -319,6 +301,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
           }), Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["animate"])('.3s ease', Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["style"])({
             opacity: 0
           }))];
+          this.animationSub && this.animationSub.unsubscribe();
           return this.animation.makeAnimation(el, animation);
         }
       }, {
@@ -329,9 +312,13 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
           if (value) {
             this._visible = true;
             this.cdr.detectChanges();
-            this.makeAnimation('enter');
+            this.animationSub = this.makeAnimation('enter').pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_4__["takeUntil"])(this.destroy$)).subscribe(
+            /**
+            * @return {?}
+            */
+            function () {});
           } else {
-            this.makeAnimation('leave').pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_4__["takeUntil"])(this.destroy$)).subscribe(
+            this.animationSub = this.makeAnimation('leave').pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_4__["takeUntil"])(this.destroy$)).subscribe(
             /**
             * @return {?}
             */
@@ -565,8 +552,6 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
     };
 
     var PopupComponent = /*#__PURE__*/function () {
-      // 是否处于动画中
-
       /**
        * @param {?} cdr
        * @param {?} overlayService
@@ -614,6 +599,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         this.afterClose = new _angular_core__WEBPACK_IMPORTED_MODULE_0__["EventEmitter"](); // 关闭之后触发（离场动画执行完毕）
 
         this.destroy$ = new rxjs__WEBPACK_IMPORTED_MODULE_3__["Subject"]();
+        this.leaving = false;
 
         this.change =
         /**
@@ -667,8 +653,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
             return;
           }
 
-          if (this.animating) {
-            return;
+          if (this.animationSub) {
+            this.animationSub.unsubscribe();
           }
 
           if (value) {
@@ -677,6 +663,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
             this.close();
           }
 
+          this.change(value);
           this.dirty = true;
         }
         /**
@@ -691,17 +678,14 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
           this.visible = true;
           this.cdr.detectChanges();
-          this.change(this.visible);
           this.beforeOpen.emit();
+          this.leaving = false;
           this.overlay && this.openOverlay();
-          this.animating = true;
-          this.makeAnimation('enter').pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_4__["takeUntil"])(this.destroy$)).subscribe(
+          this.animationSub = this.makeAnimation('enter').pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_4__["takeUntil"])(this.destroy$)).subscribe(
           /**
           * @return {?}
           */
           function () {
-            _this2.animating = false;
-
             _this2.afterOpen.emit();
           });
         }
@@ -716,21 +700,20 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
           var _this3 = this;
 
           this.beforeClose.emit();
+          this.leaving = true;
           this.overlay && this.closeOverlay();
-          this.animating = true;
-          this.makeAnimation('leave').pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_4__["takeUntil"])(this.destroy$)).subscribe(
+          this.animationSub = this.makeAnimation('leave').pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_4__["takeUntil"])(this.destroy$)).subscribe(
           /**
           * @return {?}
           */
           function () {
-            _this3.animating = false;
             _this3.visible = false;
 
             _this3.cdr.detectChanges();
 
-            _this3.change(_this3.visible);
-
             _this3.afterClose.emit();
+
+            _this3.leaving = false;
           });
         }
         /**
@@ -751,13 +734,15 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
             * @return {?}
             */
             function onClick() {
-              if (!_this4.visible || _this4.animating) {
+              if (!_this4.visible) {
                 return;
               }
 
               _this4.clickOverlay.emit();
 
-              _this4.closeOnClickOverlay && _this4.writeValue(false);
+              if (_this4.closeOnClickOverlay && !_this4.leaving) {
+                _this4.writeValue(false);
+              }
             }
           });
         }
