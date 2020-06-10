@@ -270,32 +270,59 @@ class OverlayService {
      * @return {?}
      */
     open(opts) {
-        const { opacity = 0.5, zIndex, onClick } = opts;
+        const { opacity = 0.5, zIndex } = opts;
         /** @type {?} */
         const factory = this.cfr.resolveComponentFactory(OverlayComponent);
         /** @type {?} */
         const componentRef = factory.create(this.injector);
         this.appRef.attachView(componentRef.hostView);
         const { nativeElement } = componentRef.location;
-        this.document.body.insertBefore(nativeElement, document.body.firstChild);
+        this.document.body.insertBefore(nativeElement, this.document.body.firstChild);
         /** @type {?} */
-        const overlay = componentRef.instance;
-        overlay.opacity = opacity;
-        overlay.zIndex = zIndex;
-        overlay.visible = true;
-        onClick && overlay.clickOverlay.subscribe(onClick);
-        overlay.afterClose.subscribe((/**
-         * @return {?}
-         */
-        () => {
-            componentRef.destroy();
-        }));
+        const inst = componentRef.instance;
+        inst.opacity = opacity;
+        inst.zIndex = zIndex;
+        inst.visible = true;
+        this.setListener(componentRef, opts);
         return (/**
          * @return {?}
          */
         () => {
-            overlay.visible = false;
+            inst.visible = false;
         });
+    }
+    /**
+     * @private
+     * @param {?} componentRef
+     * @param {?} opts
+     * @return {?}
+     */
+    setListener(componentRef, opts) {
+        /** @type {?} */
+        const inst = componentRef.instance;
+        /** @type {?} */
+        const subs = new rxjs__WEBPACK_IMPORTED_MODULE_3__["Subscription"]();
+        const { onClick } = opts;
+        subs.add(inst.afterClose.subscribe((/**
+         * @return {?}
+         */
+        () => {
+            componentRef.destroy();
+        })));
+        if (onClick) {
+            subs.add(inst.clickOverlay.subscribe((/**
+             * @return {?}
+             */
+            () => {
+                onClick();
+            })));
+        }
+        componentRef.onDestroy((/**
+         * @return {?}
+         */
+        () => {
+            subs.unsubscribe();
+        }));
     }
 }
 OverlayService.decorators = [
@@ -368,11 +395,6 @@ class PopupComponent {
         this.afterClose = new _angular_core__WEBPACK_IMPORTED_MODULE_0__["EventEmitter"](); // 关闭之后触发（离场动画执行完毕）
         this.destroy$ = new rxjs__WEBPACK_IMPORTED_MODULE_3__["Subject"]();
         this.leaving = false;
-        this.change = (/**
-         * @param {?} value
-         * @return {?}
-         */
-        (value) => { });
     }
     /**
      * @return {?}
@@ -385,7 +407,7 @@ class PopupComponent {
      * @param {?} fn
      * @return {?}
      */
-    registerOnChange(fn) { this.change = fn; }
+    registerOnChange(fn) { this.onChange = fn; }
     /**
      * @param {?} fn
      * @return {?}
@@ -411,7 +433,7 @@ class PopupComponent {
         else {
             this.close();
         }
-        this.change(value);
+        this.onChange(value);
         this.dirty = true;
     }
     /**
@@ -517,7 +539,7 @@ class PopupComponent {
 PopupComponent.decorators = [
     { type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Component"], args: [{
                 selector: 'ngx-popup',
-                template: "<div\n  class=\"ngx-popup ngx-popup--{{ position }}\"\n  [hidden]=\"!visible\"\n  [ngClass]=\"externalClass\"\n  [style.zIndex]=\"zIndex\"\n>\n  <div class=\"ngx-popup__content\" #container>\n    <ng-content></ng-content>\n  </div>\n</div>\n\n",
+                template: "<div\n  class=\"ngx-popup ngx-popup--{{ position }}\"\n  [hidden]=\"!visible\"\n  [ngClass]=\"externalClass\"\n  [style.zIndex]=\"zIndex\"\n>\n  <div class=\"ngx-popup__content\" #container>\n    <ng-content></ng-content>\n  </div>\n</div>\n",
                 encapsulation: _angular_core__WEBPACK_IMPORTED_MODULE_0__["ViewEncapsulation"].None,
                 changeDetection: _angular_core__WEBPACK_IMPORTED_MODULE_0__["ChangeDetectionStrategy"].OnPush,
                 providers: [
@@ -567,7 +589,7 @@ PopupModule.decorators = [
     { type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["NgModule"], args: [{
                 declarations: [OverlayComponent, PopupComponent],
                 imports: [_angular_common__WEBPACK_IMPORTED_MODULE_5__["CommonModule"], _angular_forms__WEBPACK_IMPORTED_MODULE_1__["FormsModule"]],
-                exports: [_angular_forms__WEBPACK_IMPORTED_MODULE_1__["FormsModule"], PopupComponent],
+                exports: [_angular_common__WEBPACK_IMPORTED_MODULE_5__["CommonModule"], _angular_forms__WEBPACK_IMPORTED_MODULE_1__["FormsModule"], PopupComponent],
                 entryComponents: [OverlayComponent]
             },] }
 ];

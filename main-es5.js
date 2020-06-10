@@ -449,8 +449,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         value: function open(opts) {
           var _opts$opacity = opts.opacity,
               opacity = _opts$opacity === void 0 ? 0.5 : _opts$opacity,
-              zIndex = opts.zIndex,
-              onClick = opts.onClick;
+              zIndex = opts.zIndex;
           /** @type {?} */
 
           var factory = this.cfr.resolveComponentFactory(OverlayComponent);
@@ -459,29 +458,64 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
           var componentRef = factory.create(this.injector);
           this.appRef.attachView(componentRef.hostView);
           var nativeElement = componentRef.location.nativeElement;
-          this.document.body.insertBefore(nativeElement, document.body.firstChild);
+          this.document.body.insertBefore(nativeElement, this.document.body.firstChild);
           /** @type {?} */
 
-          var overlay = componentRef.instance;
-          overlay.opacity = opacity;
-          overlay.zIndex = zIndex;
-          overlay.visible = true;
-          onClick && overlay.clickOverlay.subscribe(onClick);
-          overlay.afterClose.subscribe(
-          /**
-          * @return {?}
-          */
-          function () {
-            componentRef.destroy();
-          });
+          var inst = componentRef.instance;
+          inst.opacity = opacity;
+          inst.zIndex = zIndex;
+          inst.visible = true;
+          this.setListener(componentRef, opts);
           return (
             /**
             * @return {?}
             */
             function () {
-              overlay.visible = false;
+              inst.visible = false;
             }
           );
+        }
+        /**
+         * @private
+         * @param {?} componentRef
+         * @param {?} opts
+         * @return {?}
+         */
+
+      }, {
+        key: "setListener",
+        value: function setListener(componentRef, opts) {
+          /** @type {?} */
+          var inst = componentRef.instance;
+          /** @type {?} */
+
+          var subs = new rxjs__WEBPACK_IMPORTED_MODULE_3__["Subscription"]();
+          var onClick = opts.onClick;
+          subs.add(inst.afterClose.subscribe(
+          /**
+          * @return {?}
+          */
+          function () {
+            componentRef.destroy();
+          }));
+
+          if (onClick) {
+            subs.add(inst.clickOverlay.subscribe(
+            /**
+            * @return {?}
+            */
+            function () {
+              onClick();
+            }));
+          }
+
+          componentRef.onDestroy(
+          /**
+          * @return {?}
+          */
+          function () {
+            subs.unsubscribe();
+          });
         }
       }]);
 
@@ -600,13 +634,6 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
         this.destroy$ = new rxjs__WEBPACK_IMPORTED_MODULE_3__["Subject"]();
         this.leaving = false;
-
-        this.change =
-        /**
-        * @param {?} value
-        * @return {?}
-        */
-        function (value) {};
       }
       /**
        * @return {?}
@@ -627,7 +654,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       }, {
         key: "registerOnChange",
         value: function registerOnChange(fn) {
-          this.change = fn;
+          this.onChange = fn;
         }
         /**
          * @param {?} fn
@@ -663,7 +690,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
             this.close();
           }
 
-          this.change(value);
+          this.onChange(value);
           this.dirty = true;
         }
         /**
@@ -835,7 +862,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Component"],
       args: [{
         selector: 'ngx-popup',
-        template: "<div\n  class=\"ngx-popup ngx-popup--{{ position }}\"\n  [hidden]=\"!visible\"\n  [ngClass]=\"externalClass\"\n  [style.zIndex]=\"zIndex\"\n>\n  <div class=\"ngx-popup__content\" #container>\n    <ng-content></ng-content>\n  </div>\n</div>\n\n",
+        template: "<div\n  class=\"ngx-popup ngx-popup--{{ position }}\"\n  [hidden]=\"!visible\"\n  [ngClass]=\"externalClass\"\n  [style.zIndex]=\"zIndex\"\n>\n  <div class=\"ngx-popup__content\" #container>\n    <ng-content></ng-content>\n  </div>\n</div>\n",
         encapsulation: _angular_core__WEBPACK_IMPORTED_MODULE_0__["ViewEncapsulation"].None,
         changeDetection: _angular_core__WEBPACK_IMPORTED_MODULE_0__["ChangeDetectionStrategy"].OnPush,
         providers: [{
@@ -926,7 +953,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       args: [{
         declarations: [OverlayComponent, PopupComponent],
         imports: [_angular_common__WEBPACK_IMPORTED_MODULE_5__["CommonModule"], _angular_forms__WEBPACK_IMPORTED_MODULE_1__["FormsModule"]],
-        exports: [_angular_forms__WEBPACK_IMPORTED_MODULE_1__["FormsModule"], PopupComponent],
+        exports: [_angular_common__WEBPACK_IMPORTED_MODULE_5__["CommonModule"], _angular_forms__WEBPACK_IMPORTED_MODULE_1__["FormsModule"], PopupComponent],
         entryComponents: [OverlayComponent]
       }]
     }];
