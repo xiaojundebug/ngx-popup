@@ -65,10 +65,11 @@ export class PopupComponent implements ControlValueAccessor, OnDestroy {
   visible: boolean
 
   private destroy$ = new Subject<any>()
-  private dirty: boolean
-  private closeOverlay: () => void
   private animationSub: Subscription
+  private dirty: boolean
   private leaving = false
+  private onChange: (value: any) => void
+  private closeOverlay: () => void
 
   constructor(
     private cdr: ChangeDetectorRef,
@@ -81,9 +82,7 @@ export class PopupComponent implements ControlValueAccessor, OnDestroy {
     this.destroy$.complete()
   }
 
-  change = (value: any) => { }
-
-  registerOnChange(fn: any) { this.change = fn }
+  registerOnChange(fn: any) { this.onChange = fn }
 
   registerOnTouched(fn: any) { }
 
@@ -98,7 +97,7 @@ export class PopupComponent implements ControlValueAccessor, OnDestroy {
       this.close()
     }
 
-    this.change(value)
+    this.onChange(value)
     this.dirty = true
   }
 

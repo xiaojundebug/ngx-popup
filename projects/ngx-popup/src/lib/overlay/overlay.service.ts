@@ -3,10 +3,12 @@ import {
   ApplicationRef,
   ComponentFactoryResolver,
   Injector,
-  Inject
+  Inject,
+  ComponentRef
 } from '@angular/core'
 import { OverlayComponent } from './overlay.component'
 import { DOCUMENT } from '@angular/common'
+import { Subscription } from 'rxjs'
 
 interface OverlayOptions {
   opacity: number
@@ -27,28 +29,47 @@ export class OverlayService {
   ) {}
 
   open(opts: OverlayOptions) {
-    const { opacity = 0.5, zIndex, onClick } = opts
+    const { opacity = 0.5, zIndex } = opts
 
     const factory = this.cfr.resolveComponentFactory(OverlayComponent)
     const componentRef = factory.create(this.injector)
     this.appRef.attachView(componentRef.hostView)
 
     const { nativeElement } = componentRef.location
-    this.document.body.insertBefore(nativeElement, document.body.firstChild)
+    this.document.body.insertBefore(nativeElement, this.document.body.firstChild)
 
-    const overlay = componentRef.instance
-    overlay.opacity = opacity
-    overlay.zIndex = zIndex
-    overlay.visible = true
+    const inst = componentRef.instance
+    inst.opacity = opacity
+    inst.zIndex = zIndex
+    inst.visible = true
 
-    onClick && overlay.clickOverlay.subscribe(onClick)
-
-    overlay.afterClose.subscribe(() => {
-      componentRef.destroy()
-    })
+    this.setListener(componentRef, opts)
 
     return () => {
-      overlay.visible = false
+      inst.visible = false
     }
+  }
+
+  private setListener(componentRef: ComponentRef<OverlayComponent>, opts: OverlayOptions) {
+    const inst = componentRef.instance
+    const subs = new Subscription()
+    const { onClick } = opts
+
+    subs.add(
+      inst.afterClose.subscribe(() => {
+        componentRef.destroy()
+      })
+    )
+    if (onClick) {
+      subs.add(
+        inst.clickOverlay.subscribe(() => {
+          onClick()
+        })
+      )
+    }
+
+    componentRef.onDestroy(() => {
+      subs.unsubscribe()
+    })
   }
 }
