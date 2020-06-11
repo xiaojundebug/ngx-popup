@@ -1,7 +1,7 @@
 {
   "name": "@ciri/ngx-popup",
   "description": "An angular popup component that can customize animation.",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "license": "MIT",
   "author": "xiaojun1994 <362896731@qq.com>",
   "repository": "git@github.com:xiaojun1994/ngx-popup.git",

@@ -91,7 +91,7 @@ export class AppComponent implements OnInit {
 
 | Name                | Type    | Default | Description                                 |
 | ------------------- | ------- | ------- | ------------------------------------------- |
-| position            | string  | center  | Can be set to `top` `bottom` `right` `left` |
+| position            | string  | center  | Can be set to `top` `right` `bottom` `left` |
 | animations          | object  | -       | Custom animation                            |
 | overlay             | boolean | true    | Whether to show overlay                     |
 | overlayOpacity      | number  | 0.5     | Set overlay opacity                         |

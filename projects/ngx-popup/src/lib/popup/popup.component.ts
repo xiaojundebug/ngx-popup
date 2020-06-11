@@ -5,15 +5,16 @@ import {
   ElementRef,
   EventEmitter,
   forwardRef,
-  Input, OnDestroy,
+  Input,
+  OnDestroy,
   Output,
   ViewChild,
-  ViewEncapsulation,
-} from '@angular/core';
+  ViewEncapsulation
+} from '@angular/core'
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms'
 import { animate, AnimationMetadata, style } from '@angular/animations'
-import {Subject, Subscription} from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { Subject, Subscription } from 'rxjs'
+import { takeUntil } from 'rxjs/operators'
 import { OverlayService } from '../overlay/overlay.service'
 import { AnimationService } from '../animation.service'
 
@@ -26,10 +27,10 @@ export interface PopupAnimations {
 
 export enum Position {
   center = 'center',
-  top    = 'top',
-  right  = 'right',
+  top = 'top',
+  right = 'right',
   bottom = 'bottom',
-  left   = 'left',
+  left = 'left'
 }
 @Component({
   selector: 'ngx-popup',
@@ -46,21 +47,24 @@ export enum Position {
   ]
 })
 export class PopupComponent implements ControlValueAccessor, OnDestroy {
-  @Input() position: Position = Position.center    // 弹窗位置
-  @Input() animations: PopupAnimations = {}        // 自定义动画
-  @Input() overlay: boolean = true                 // 是否显示蒙版
-  @Input() overlayOpacity: number = 0.5            // 蒙版透明度 0~1
-  @Input() closeOnClickOverlay: boolean = true     // 是否允许点击蒙版时自动关闭弹框
-  @Input() zIndex: number = zIndex++               // 同 css z-index
-  @Input() externalClass: object = {}              // 自定义类名
+  /* inputs
+  -------------------------- */
+  @Input() position: Position = Position.center    /** 弹窗位置 */
+  @Input() animations: PopupAnimations = {}        /** 自定义动画 */
+  @Input() overlay: boolean = true                 /** 是否显示蒙版 */
+  @Input() overlayOpacity: number = 0.5            /** 蒙版透明度 0~1 */
+  @Input() closeOnClickOverlay: boolean = true     /** 是否允许点击蒙版时自动关闭弹框 */
+  @Input() zIndex: number = zIndex++               /** 同 css z-index */
+  @Input() externalClass: object = {}              /** 自定义类名 */
+  /* outputs
+  -------------------------- */
+  @Output() clickOverlay = new EventEmitter<any>() /** 点击蒙版时触发 */
+  @Output() beforeOpen = new EventEmitter<any>()   /** 打开之前触发（还未执行进场动画） */
+  @Output() afterOpen = new EventEmitter<any>()    /** 打开之后触发（进场动画执行完毕） */
+  @Output() beforeClose = new EventEmitter<any>()  /** 关闭之前触发（还未执行离场动画） */
+  @Output() afterClose = new EventEmitter<any>()   /** 关闭之后触发（离场动画执行完毕） */
 
-  @Output() clickOverlay = new EventEmitter<any>() // 点击蒙版时触发（处于动画中无效）
-  @Output() beforeOpen = new EventEmitter<any>()   // 打开之前触发（还未执行进场动画）
-  @Output() afterOpen = new EventEmitter<any>()    // 打开之后触发（进场动画执行完毕）
-  @Output() beforeClose = new EventEmitter<any>()  // 关闭之前触发（还未执行离场动画）
-  @Output() afterClose = new EventEmitter<any>()   // 关闭之后触发（离场动画执行完毕）
-
-  @ViewChild('container', { static: false }) container: ElementRef
+  @ViewChild('container', { static: false }) private container: ElementRef
 
   visible: boolean
 
@@ -74,7 +78,7 @@ export class PopupComponent implements ControlValueAccessor, OnDestroy {
   constructor(
     private cdr: ChangeDetectorRef,
     private overlayService: OverlayService,
-    private animation: AnimationService,
+    private animation: AnimationService
   ) {}
 
   ngOnDestroy() {
@@ -82,9 +86,11 @@ export class PopupComponent implements ControlValueAccessor, OnDestroy {
     this.destroy$.complete()
   }
 
-  registerOnChange(fn: any) { this.onChange = fn }
+  registerOnChange(fn: any) {
+    this.onChange = fn
+  }
 
-  registerOnTouched(fn: any) { }
+  registerOnTouched(fn: any) {}
 
   writeValue(value: boolean) {
     if (value === null) { return }
@@ -133,11 +139,8 @@ export class PopupComponent implements ControlValueAccessor, OnDestroy {
       opacity: this.overlayOpacity,
       zIndex: this.zIndex,
       onClick: () => {
-        if (!this.visible) {
-          return
-        }
         this.clickOverlay.emit()
-        if (this.closeOnClickOverlay && !this.leaving) {
+        if (this.closeOnClickOverlay && this.visible && !this.leaving) {
           this.writeValue(false)
         }
       }

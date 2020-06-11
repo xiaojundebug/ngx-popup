@@ -28,12 +28,13 @@ export class OverlayComponent implements OnInit, OnDestroy {
   @Input() opacity: number = 0.5
   @Input()
   set visible(value: boolean) {
+    this.animationSub && this.animationSub.unsubscribe()
     if (value) {
       this._visible = true
       this.cdr.detectChanges()
       this.animationSub = this.makeAnimation('enter')
         .pipe(takeUntil(this.destroy$))
-        .subscribe(() => { })
+        .subscribe(() => {})
     } else {
       this.animationSub = this.makeAnimation('leave')
         .pipe(takeUntil(this.destroy$))
@@ -51,7 +52,7 @@ export class OverlayComponent implements OnInit, OnDestroy {
   @Output() clickOverlay = new EventEmitter<any>()
   @Output() afterClose = new EventEmitter<any>()
 
-  @ViewChild('container', { static: false }) container
+  @ViewChild('container', { static: false }) private container
 
   get styles() {
     return {
@@ -89,7 +90,6 @@ export class OverlayComponent implements OnInit, OnDestroy {
       ? [style({ opacity: 0 }), animate('.3s ease', style({ opacity: 1 }))]
       : [style({ opacity: 1 }), animate('.3s ease', style({ opacity: 0 }))]
 
-    this.animationSub && this.animationSub.unsubscribe()
     return this.animation.makeAnimation(el, animation)
   }
 }
