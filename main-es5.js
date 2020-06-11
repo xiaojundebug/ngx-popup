@@ -301,13 +301,14 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
           }), Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["animate"])('.3s ease', Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["style"])({
             opacity: 0
           }))];
-          this.animationSub && this.animationSub.unsubscribe();
           return this.animation.makeAnimation(el, animation);
         }
       }, {
         key: "visible",
         set: function set(value) {
           var _this = this;
+
+          this.animationSub && this.animationSub.unsubscribe();
 
           if (value) {
             this._visible = true;
@@ -597,40 +598,91 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         this.cdr = cdr;
         this.overlayService = overlayService;
         this.animation = animation;
-        this.position = Position.center; // 弹窗位置
-        // 弹窗位置
+        /* inputs
+          -------------------------- */
 
-        this.animations = {}; // 自定义动画
-        // 自定义动画
+        this.position = Position.center;
+        /** 弹窗位置 */
 
-        this.overlay = true; // 是否显示蒙版
-        // 是否显示蒙版
+        /**
+         * 弹窗位置
+         */
 
-        this.overlayOpacity = 0.5; // 蒙版透明度 0~1
-        // 蒙版透明度 0~1
+        this.animations = {};
+        /** 自定义动画 */
 
-        this.closeOnClickOverlay = true; // 是否允许点击蒙版时自动关闭弹框
-        // 是否允许点击蒙版时自动关闭弹框
+        /**
+         * 自定义动画
+         */
 
-        this.zIndex = zIndex++; // 同 css z-index
-        // 同 css z-index
+        this.overlay = true;
+        /** 是否显示蒙版 */
 
-        this.externalClass = {}; // 自定义类名
-        // 自定义类名
+        /**
+         * 是否显示蒙版
+         */
 
-        this.clickOverlay = new _angular_core__WEBPACK_IMPORTED_MODULE_0__["EventEmitter"](); // 点击蒙版时触发（处于动画中无效）
-        // 点击蒙版时触发（处于动画中无效）
+        this.overlayOpacity = 0.5;
+        /** 蒙版透明度 0~1 */
 
-        this.beforeOpen = new _angular_core__WEBPACK_IMPORTED_MODULE_0__["EventEmitter"](); // 打开之前触发（还未执行进场动画）
-        // 打开之前触发（还未执行进场动画）
+        /**
+         * 蒙版透明度 0~1
+         */
 
-        this.afterOpen = new _angular_core__WEBPACK_IMPORTED_MODULE_0__["EventEmitter"](); // 打开之后触发（进场动画执行完毕）
-        // 打开之后触发（进场动画执行完毕）
+        this.closeOnClickOverlay = true;
+        /** 是否允许点击蒙版时自动关闭弹框 */
 
-        this.beforeClose = new _angular_core__WEBPACK_IMPORTED_MODULE_0__["EventEmitter"](); // 关闭之前触发（还未执行离场动画）
-        // 关闭之前触发（还未执行离场动画）
+        /**
+         * 是否允许点击蒙版时自动关闭弹框
+         */
 
-        this.afterClose = new _angular_core__WEBPACK_IMPORTED_MODULE_0__["EventEmitter"](); // 关闭之后触发（离场动画执行完毕）
+        this.zIndex = zIndex++;
+        /** 同 css z-index */
+
+        /**
+         * 同 css z-index
+         */
+
+        this.externalClass = {};
+        /** 自定义类名 */
+
+        /**
+         * 自定义类名
+         */
+
+        /* outputs
+          -------------------------- */
+
+        this.clickOverlay = new _angular_core__WEBPACK_IMPORTED_MODULE_0__["EventEmitter"]();
+        /** 点击蒙版时触发 */
+
+        /**
+         * 点击蒙版时触发
+         */
+
+        this.beforeOpen = new _angular_core__WEBPACK_IMPORTED_MODULE_0__["EventEmitter"]();
+        /** 打开之前触发（还未执行进场动画） */
+
+        /**
+         * 打开之前触发（还未执行进场动画）
+         */
+
+        this.afterOpen = new _angular_core__WEBPACK_IMPORTED_MODULE_0__["EventEmitter"]();
+        /** 打开之后触发（进场动画执行完毕） */
+
+        /**
+         * 打开之后触发（进场动画执行完毕）
+         */
+
+        this.beforeClose = new _angular_core__WEBPACK_IMPORTED_MODULE_0__["EventEmitter"]();
+        /** 关闭之前触发（还未执行离场动画） */
+
+        /**
+         * 关闭之前触发（还未执行离场动画）
+         */
+
+        this.afterClose = new _angular_core__WEBPACK_IMPORTED_MODULE_0__["EventEmitter"]();
+        /** 关闭之后触发（离场动画执行完毕） */
 
         this.destroy$ = new rxjs__WEBPACK_IMPORTED_MODULE_3__["Subject"]();
         this.leaving = false;
@@ -761,13 +813,9 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
             * @return {?}
             */
             function onClick() {
-              if (!_this4.visible) {
-                return;
-              }
-
               _this4.clickOverlay.emit();
 
-              if (_this4.closeOnClickOverlay && !_this4.leaving) {
+              if (_this4.closeOnClickOverlay && _this4.visible && !_this4.leaving) {
                 _this4.writeValue(false);
               }
             }
@@ -862,7 +910,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Component"],
       args: [{
         selector: 'ngx-popup',
-        template: "<div\n  class=\"ngx-popup ngx-popup--{{ position }}\"\n  [hidden]=\"!visible\"\n  [ngClass]=\"externalClass\"\n  [style.zIndex]=\"zIndex\"\n>\n  <div class=\"ngx-popup__content\" #container>\n    <ng-content></ng-content>\n  </div>\n</div>\n",
+        template: "<div class=\"ngx-popup-wrapper is-{{ position }}\" [hidden]=\"!visible\" [style.zIndex]=\"zIndex\">\n  <div class=\"ngx-popup\" #container [ngClass]=\"externalClass\">\n    <ng-content></ng-content>\n  </div>\n</div>\n",
         encapsulation: _angular_core__WEBPACK_IMPORTED_MODULE_0__["ViewEncapsulation"].None,
         changeDetection: _angular_core__WEBPACK_IMPORTED_MODULE_0__["ChangeDetectionStrategy"].OnPush,
         providers: [{
@@ -876,7 +924,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
           }),
           multi: true
         }],
-        styles: [".ngx-popup{position:fixed}.ngx-popup__content{width:100%;height:100%}.ngx-popup--center{top:50%;left:50%;transform:translate3d(-50%,-50%,0)}.ngx-popup--top{top:0;left:0;right:0;transform:translate3d(0,0,0)}.ngx-popup--right{top:0;bottom:0;right:0;transform:translate3d(0,0,0)}.ngx-popup--bottom{bottom:0;left:0;right:0;transform:translate3d(0,0,0)}.ngx-popup--left{top:0;left:0;bottom:0;transform:translate3d(0,0,0)}"]
+        styles: [".ngx-popup-wrapper{position:fixed;top:0;right:0;bottom:0;left:0;display:flex;pointer-events:none}.ngx-popup-wrapper[hidden]{display:none}.ngx-popup-wrapper .ngx-popup{pointer-events:auto}.ngx-popup-wrapper.is-center{align-items:center;justify-content:center}.ngx-popup-wrapper.is-top{align-items:flex-start;justify-content:center}.ngx-popup-wrapper.is-top .ngx-popup{width:100%}.ngx-popup-wrapper.is-right{align-items:center;justify-content:flex-end}.ngx-popup-wrapper.is-right .ngx-popup{height:100%}.ngx-popup-wrapper.is-bottom{align-items:flex-end;justify-content:center}.ngx-popup-wrapper.is-bottom .ngx-popup{width:100%}.ngx-popup-wrapper.is-left{align-items:center;justify-content:flex-start}.ngx-popup-wrapper.is-left .ngx-popup{height:100%}"]
       }]
     }];
     /** @nocollapse */
@@ -1971,7 +2019,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
     PositionComponent = tslib__WEBPACK_IMPORTED_MODULE_0__["__decorate"]([Object(_angular_core__WEBPACK_IMPORTED_MODULE_1__["Component"])({
       selector: 'position-demo',
-      template: "\n    <ngx-popup [(ngModel)]=\"visible\" [position]=\"position\">\n      <div\n        style=\"\n          display: flex;\n          align-items: center;\n          justify-content: center;\n          width: 100%;\n          height: 100%;\n          padding: 100px;\n          box-sizing: border-box;\n          background: #fff;\n        \"\n      ></div>\n    </ngx-popup>\n\n    <button (click)=\"show('center')\">center</button>&nbsp;\n    <button (click)=\"show('top')\">top</button>&nbsp;\n    <button (click)=\"show('bottom')\">bottom</button>&nbsp;\n    <button (click)=\"show('left')\">left</button>&nbsp;\n    <button (click)=\"show('right')\">right</button>\n  "
+      template: "\n    <ngx-popup [(ngModel)]=\"visible\" [position]=\"position\">\n      <div\n        style=\"\n          width: 100%;\n          height: 100%;\n          padding: 100px;\n          box-sizing: border-box;\n          background: #fff;\n        \"\n      ></div>\n    </ngx-popup>\n\n    <button (click)=\"show('center')\">center</button>&nbsp;\n    <button (click)=\"show('top')\">top</button>&nbsp;\n    <button (click)=\"show('bottom')\">bottom</button>&nbsp;\n    <button (click)=\"show('left')\">left</button>&nbsp;\n    <button (click)=\"show('right')\">right</button>\n  "
     })], PositionComponent);
     /***/
   },

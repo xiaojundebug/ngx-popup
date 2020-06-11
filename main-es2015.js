@@ -135,6 +135,7 @@ class OverlayComponent {
      * @return {?}
      */
     set visible(value) {
+        this.animationSub && this.animationSub.unsubscribe();
         if (value) {
             this._visible = true;
             this.cdr.detectChanges();
@@ -210,7 +211,6 @@ class OverlayComponent {
         const animation = isEnter
             ? [Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["style"])({ opacity: 0 }), Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["animate"])('.3s ease', Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["style"])({ opacity: 1 }))]
             : [Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["style"])({ opacity: 1 }), Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["animate"])('.3s ease', Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["style"])({ opacity: 0 }))];
-        this.animationSub && this.animationSub.unsubscribe();
         return this.animation.makeAnimation(el, animation);
     }
 }
@@ -370,29 +370,55 @@ class PopupComponent {
         this.cdr = cdr;
         this.overlayService = overlayService;
         this.animation = animation;
-        this.position = Position.center; // 弹窗位置
-        // 弹窗位置
-        this.animations = {}; // 自定义动画
-        // 自定义动画
-        this.overlay = true; // 是否显示蒙版
-        // 是否显示蒙版
-        this.overlayOpacity = 0.5; // 蒙版透明度 0~1
-        // 蒙版透明度 0~1
-        this.closeOnClickOverlay = true; // 是否允许点击蒙版时自动关闭弹框
-        // 是否允许点击蒙版时自动关闭弹框
-        this.zIndex = zIndex++; // 同 css z-index
-        // 同 css z-index
-        this.externalClass = {}; // 自定义类名
-        // 自定义类名
-        this.clickOverlay = new _angular_core__WEBPACK_IMPORTED_MODULE_0__["EventEmitter"](); // 点击蒙版时触发（处于动画中无效）
-        // 点击蒙版时触发（处于动画中无效）
-        this.beforeOpen = new _angular_core__WEBPACK_IMPORTED_MODULE_0__["EventEmitter"](); // 打开之前触发（还未执行进场动画）
-        // 打开之前触发（还未执行进场动画）
-        this.afterOpen = new _angular_core__WEBPACK_IMPORTED_MODULE_0__["EventEmitter"](); // 打开之后触发（进场动画执行完毕）
-        // 打开之后触发（进场动画执行完毕）
-        this.beforeClose = new _angular_core__WEBPACK_IMPORTED_MODULE_0__["EventEmitter"](); // 关闭之前触发（还未执行离场动画）
-        // 关闭之前触发（还未执行离场动画）
-        this.afterClose = new _angular_core__WEBPACK_IMPORTED_MODULE_0__["EventEmitter"](); // 关闭之后触发（离场动画执行完毕）
+        /* inputs
+          -------------------------- */
+        this.position = Position.center; /** 弹窗位置 */
+        /**
+         * 弹窗位置
+         */
+        this.animations = {}; /** 自定义动画 */
+        /**
+         * 自定义动画
+         */
+        this.overlay = true; /** 是否显示蒙版 */
+        /**
+         * 是否显示蒙版
+         */
+        this.overlayOpacity = 0.5; /** 蒙版透明度 0~1 */
+        /**
+         * 蒙版透明度 0~1
+         */
+        this.closeOnClickOverlay = true; /** 是否允许点击蒙版时自动关闭弹框 */
+        /**
+         * 是否允许点击蒙版时自动关闭弹框
+         */
+        this.zIndex = zIndex++; /** 同 css z-index */
+        /**
+         * 同 css z-index
+         */
+        this.externalClass = {}; /** 自定义类名 */
+        /**
+         * 自定义类名
+         */
+        /* outputs
+          -------------------------- */
+        this.clickOverlay = new _angular_core__WEBPACK_IMPORTED_MODULE_0__["EventEmitter"](); /** 点击蒙版时触发 */
+        /**
+         * 点击蒙版时触发
+         */
+        this.beforeOpen = new _angular_core__WEBPACK_IMPORTED_MODULE_0__["EventEmitter"](); /** 打开之前触发（还未执行进场动画） */
+        /**
+         * 打开之前触发（还未执行进场动画）
+         */
+        this.afterOpen = new _angular_core__WEBPACK_IMPORTED_MODULE_0__["EventEmitter"](); /** 打开之后触发（进场动画执行完毕） */
+        /**
+         * 打开之后触发（进场动画执行完毕）
+         */
+        this.beforeClose = new _angular_core__WEBPACK_IMPORTED_MODULE_0__["EventEmitter"](); /** 关闭之前触发（还未执行离场动画） */
+        /**
+         * 关闭之前触发（还未执行离场动画）
+         */
+        this.afterClose = new _angular_core__WEBPACK_IMPORTED_MODULE_0__["EventEmitter"](); /** 关闭之后触发（离场动画执行完毕） */
         this.destroy$ = new rxjs__WEBPACK_IMPORTED_MODULE_3__["Subject"]();
         this.leaving = false;
     }
@@ -407,7 +433,9 @@ class PopupComponent {
      * @param {?} fn
      * @return {?}
      */
-    registerOnChange(fn) { this.onChange = fn; }
+    registerOnChange(fn) {
+        this.onChange = fn;
+    }
     /**
      * @param {?} fn
      * @return {?}
@@ -487,11 +515,8 @@ class PopupComponent {
              * @return {?}
              */
             () => {
-                if (!this.visible) {
-                    return;
-                }
                 this.clickOverlay.emit();
-                if (this.closeOnClickOverlay && !this.leaving) {
+                if (this.closeOnClickOverlay && this.visible && !this.leaving) {
                     this.writeValue(false);
                 }
             })
@@ -539,7 +564,7 @@ class PopupComponent {
 PopupComponent.decorators = [
     { type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Component"], args: [{
                 selector: 'ngx-popup',
-                template: "<div\n  class=\"ngx-popup ngx-popup--{{ position }}\"\n  [hidden]=\"!visible\"\n  [ngClass]=\"externalClass\"\n  [style.zIndex]=\"zIndex\"\n>\n  <div class=\"ngx-popup__content\" #container>\n    <ng-content></ng-content>\n  </div>\n</div>\n",
+                template: "<div class=\"ngx-popup-wrapper is-{{ position }}\" [hidden]=\"!visible\" [style.zIndex]=\"zIndex\">\n  <div class=\"ngx-popup\" #container [ngClass]=\"externalClass\">\n    <ng-content></ng-content>\n  </div>\n</div>\n",
                 encapsulation: _angular_core__WEBPACK_IMPORTED_MODULE_0__["ViewEncapsulation"].None,
                 changeDetection: _angular_core__WEBPACK_IMPORTED_MODULE_0__["ChangeDetectionStrategy"].OnPush,
                 providers: [
@@ -552,7 +577,7 @@ PopupComponent.decorators = [
                         multi: true
                     }
                 ],
-                styles: [".ngx-popup{position:fixed}.ngx-popup__content{width:100%;height:100%}.ngx-popup--center{top:50%;left:50%;transform:translate3d(-50%,-50%,0)}.ngx-popup--top{top:0;left:0;right:0;transform:translate3d(0,0,0)}.ngx-popup--right{top:0;bottom:0;right:0;transform:translate3d(0,0,0)}.ngx-popup--bottom{bottom:0;left:0;right:0;transform:translate3d(0,0,0)}.ngx-popup--left{top:0;left:0;bottom:0;transform:translate3d(0,0,0)}"]
+                styles: [".ngx-popup-wrapper{position:fixed;top:0;right:0;bottom:0;left:0;display:flex;pointer-events:none}.ngx-popup-wrapper[hidden]{display:none}.ngx-popup-wrapper .ngx-popup{pointer-events:auto}.ngx-popup-wrapper.is-center{align-items:center;justify-content:center}.ngx-popup-wrapper.is-top{align-items:flex-start;justify-content:center}.ngx-popup-wrapper.is-top .ngx-popup{width:100%}.ngx-popup-wrapper.is-right{align-items:center;justify-content:flex-end}.ngx-popup-wrapper.is-right .ngx-popup{height:100%}.ngx-popup-wrapper.is-bottom{align-items:flex-end;justify-content:center}.ngx-popup-wrapper.is-bottom .ngx-popup{width:100%}.ngx-popup-wrapper.is-left{align-items:center;justify-content:flex-start}.ngx-popup-wrapper.is-left .ngx-popup{height:100%}"]
             }] }
 ];
 /** @nocollapse */
@@ -1105,9 +1130,6 @@ PositionComponent = tslib__WEBPACK_IMPORTED_MODULE_0__["__decorate"]([
     <ngx-popup [(ngModel)]="visible" [position]="position">
       <div
         style="
-          display: flex;
-          align-items: center;
-          justify-content: center;
           width: 100%;
           height: 100%;
           padding: 100px;
