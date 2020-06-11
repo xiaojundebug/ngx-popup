@@ -69,20 +69,20 @@ class AnimationService {
      * @return {?}
      */
     makeAnimation(element, animation) {
-        // first define a reusable animation
-        /** @type {?} */
-        const myAnimation = this.builder.build(animation)
-        // use the returned factory object to create a player
-        ;
-        // use the returned factory object to create a player
-        /** @type {?} */
-        const player = myAnimation.create(element);
-        player.play();
         return new rxjs__WEBPACK_IMPORTED_MODULE_3__["Observable"]((/**
          * @param {?} observer
          * @return {?}
          */
         observer => {
+            // first define a reusable animation
+            /** @type {?} */
+            const myAnimation = this.builder.build(animation)
+            // use the returned factory object to create a player
+            ;
+            // use the returned factory object to create a player
+            /** @type {?} */
+            const player = myAnimation.create(element);
+            player.play();
             player.onDone((/**
              * @return {?}
              */
@@ -420,6 +420,7 @@ class PopupComponent {
          */
         this.afterClose = new _angular_core__WEBPACK_IMPORTED_MODULE_0__["EventEmitter"](); /** 关闭之后触发（离场动画执行完毕） */
         this.destroy$ = new rxjs__WEBPACK_IMPORTED_MODULE_3__["Subject"]();
+        this.dirty = false;
         this.leaving = false;
     }
     /**

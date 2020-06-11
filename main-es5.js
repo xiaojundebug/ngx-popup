@@ -148,22 +148,25 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       _createClass(AnimationService, [{
         key: "makeAnimation",
         value: function makeAnimation(element, animation) {
-          // first define a reusable animation
+          var _this = this;
 
-          /** @type {?} */
-          var myAnimation = this.builder.build(animation) // use the returned factory object to create a player
-          ; // use the returned factory object to create a player
-
-          /** @type {?} */
-
-          var player = myAnimation.create(element);
-          player.play();
           return new rxjs__WEBPACK_IMPORTED_MODULE_3__["Observable"](
           /**
           * @param {?} observer
           * @return {?}
           */
           function (observer) {
+            // first define a reusable animation
+
+            /** @type {?} */
+            var myAnimation = _this.builder.build(animation) // use the returned factory object to create a player
+            ; // use the returned factory object to create a player
+
+            /** @type {?} */
+
+
+            var player = myAnimation.create(element);
+            player.play();
             player.onDone(
             /**
             * @return {?}
@@ -306,7 +309,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       }, {
         key: "visible",
         set: function set(value) {
-          var _this = this;
+          var _this2 = this;
 
           this.animationSub && this.animationSub.unsubscribe();
 
@@ -324,11 +327,11 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
             * @return {?}
             */
             function () {
-              _this._visible = false;
+              _this2._visible = false;
 
-              _this.cdr.detectChanges();
+              _this2.cdr.detectChanges();
 
-              _this.afterClose.emit();
+              _this2.afterClose.emit();
             });
           }
         }
@@ -685,6 +688,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         /** 关闭之后触发（离场动画执行完毕） */
 
         this.destroy$ = new rxjs__WEBPACK_IMPORTED_MODULE_3__["Subject"]();
+        this.dirty = false;
         this.leaving = false;
       }
       /**
@@ -753,7 +757,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       }, {
         key: "open",
         value: function open() {
-          var _this2 = this;
+          var _this3 = this;
 
           this.visible = true;
           this.cdr.detectChanges();
@@ -765,7 +769,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
           * @return {?}
           */
           function () {
-            _this2.afterOpen.emit();
+            _this3.afterOpen.emit();
           });
         }
         /**
@@ -776,7 +780,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       }, {
         key: "close",
         value: function close() {
-          var _this3 = this;
+          var _this4 = this;
 
           this.beforeClose.emit();
           this.leaving = true;
@@ -786,13 +790,13 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
           * @return {?}
           */
           function () {
-            _this3.visible = false;
+            _this4.visible = false;
 
-            _this3.cdr.detectChanges();
+            _this4.cdr.detectChanges();
 
-            _this3.afterClose.emit();
+            _this4.afterClose.emit();
 
-            _this3.leaving = false;
+            _this4.leaving = false;
           });
         }
         /**
@@ -803,7 +807,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       }, {
         key: "openOverlay",
         value: function openOverlay() {
-          var _this4 = this;
+          var _this5 = this;
 
           this.closeOverlay = this.overlayService.open({
             opacity: this.overlayOpacity,
@@ -813,10 +817,10 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
             * @return {?}
             */
             function onClick() {
-              _this4.clickOverlay.emit();
+              _this5.clickOverlay.emit();
 
-              if (_this4.closeOnClickOverlay && _this4.visible && !_this4.leaving) {
-                _this4.writeValue(false);
+              if (_this5.closeOnClickOverlay && _this5.visible && !_this5.leaving) {
+                _this5.writeValue(false);
               }
             }
           });
