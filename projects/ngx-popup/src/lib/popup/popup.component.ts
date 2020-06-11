@@ -70,7 +70,7 @@ export class PopupComponent implements ControlValueAccessor, OnDestroy {
 
   private destroy$ = new Subject<any>()
   private animationSub: Subscription
-  private dirty: boolean
+  private dirty = false
   private leaving = false
   private onChange: (value: any) => void
   private closeOverlay: () => void
