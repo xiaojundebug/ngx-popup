@@ -6,8 +6,16 @@
   <base href="./">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <script>
+    // iOS 新版本支持了 Web Animations API，但过渡曲线无效（一直为 linear）
+    // 可以通过手动删除原生方法，让 polyfill 脚本生效
+    if (/iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream) {
+      delete Element.prototype.animate
+    }
+  </script>
 </head>
 <body>
   <app-root></app-root>
 <script src="runtime-es2015.js" type="module"></script><script src="runtime-es5.js" nomodule defer></script><script src="polyfills-es5.js" nomodule defer></script><script src="polyfills-es2015.js" type="module"></script><script src="styles-es2015.js" type="module"></script><script src="styles-es5.js" nomodule defer></script><script src="vendor-es2015.js" type="module"></script><script src="vendor-es5.js" nomodule defer></script><script src="main-es2015.js" type="module"></script><script src="main-es5.js" nomodule defer></script></body>
 </html>
+
