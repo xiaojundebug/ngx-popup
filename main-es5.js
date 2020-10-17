@@ -72,7 +72,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
 
     __webpack_require__.d(__webpack_exports__, "ɵa", function () {
-      return OverlayService;
+      return OverlayHelper;
     });
     /* harmony export (binding) */
 
@@ -271,16 +271,6 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
           this.clickOverlay.emit();
         }
         /**
-         * @param {?} ev
-         * @return {?}
-         */
-
-      }, {
-        key: "onTouchmove",
-        value: function onTouchmove(ev) {
-          ev.preventDefault();
-        }
-        /**
          * @param {?} state
          * @return {?}
          */
@@ -362,7 +352,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
     OverlayComponent.decorators = [{
       type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Component"],
       args: [{
-        selector: 'overlay',
+        selector: 'popup-overlay',
         template: "<div\n  class=\"overlay\"\n  #container\n  [hidden]=\"!visible\"\n  [ngStyle]=\"styles\"\n  (click)=\"onClick()\"\n></div>\n",
         encapsulation: _angular_core__WEBPACK_IMPORTED_MODULE_0__["ViewEncapsulation"].None,
         changeDetection: _angular_core__WEBPACK_IMPORTED_MODULE_0__["ChangeDetectionStrategy"].OnPush,
@@ -400,17 +390,13 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         args: ['container', {
           "static": false
         }]
-      }],
-      onTouchmove: [{
-        type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["HostListener"],
-        args: ['touchmove', ['$event']]
       }]
     };
 
     if (false) {}
     /**
      * @fileoverview added by tsickle
-     * Generated from: lib/overlay/overlay.service.ts
+     * Generated from: lib/overlay/overlay-helper.ts
      * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
      */
 
@@ -427,15 +413,15 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
      */
 
 
-    var OverlayService = /*#__PURE__*/function () {
+    var OverlayHelper = /*#__PURE__*/function () {
       /**
        * @param {?} appRef
        * @param {?} cfr
        * @param {?} injector
        * @param {?} document
        */
-      function OverlayService(appRef, cfr, injector, document) {
-        _classCallCheck(this, OverlayService);
+      function OverlayHelper(appRef, cfr, injector, document) {
+        _classCallCheck(this, OverlayHelper);
 
         this.appRef = appRef;
         this.cfr = cfr;
@@ -443,17 +429,19 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         this.document = document;
       }
       /**
-       * @param {?} opts
+       * @param {?} options
        * @return {?}
        */
 
 
-      _createClass(OverlayService, [{
+      _createClass(OverlayHelper, [{
         key: "open",
-        value: function open(opts) {
-          var _opts$opacity = opts.opacity,
-              opacity = _opts$opacity === void 0 ? 0.5 : _opts$opacity,
-              zIndex = opts.zIndex;
+        value: function open(options) {
+          /** @type {?} */
+          var opts = Object.assign(this.getDefaultOptions(), options);
+          var opacity = opts.opacity,
+              zIndex = opts.zIndex,
+              getContainer = opts.getContainer;
           /** @type {?} */
 
           var factory = this.cfr.resolveComponentFactory(OverlayComponent);
@@ -462,7 +450,10 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
           var componentRef = factory.create(this.injector);
           this.appRef.attachView(componentRef.hostView);
           var nativeElement = componentRef.location.nativeElement;
-          this.document.body.insertBefore(nativeElement, this.document.body.firstChild);
+          /** @type {?} */
+
+          var container = getContainer();
+          container.insertBefore(nativeElement, container.firstChild);
           /** @type {?} */
 
           var inst = componentRef.instance;
@@ -478,6 +469,25 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
               inst.visible = false;
             }
           );
+        }
+        /**
+         * @private
+         * @return {?}
+         */
+
+      }, {
+        key: "getDefaultOptions",
+        value: function getDefaultOptions() {
+          return {
+            opacity: 0.5,
+            getContainer:
+            /**
+            * @return {?}
+            */
+            function getContainer() {
+              return document.body;
+            }
+          };
         }
         /**
          * @private
@@ -523,10 +533,10 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         }
       }]);
 
-      return OverlayService;
+      return OverlayHelper;
     }();
 
-    OverlayService.decorators = [{
+    OverlayHelper.decorators = [{
       type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Injectable"],
       args: [{
         providedIn: 'root'
@@ -534,7 +544,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
     }];
     /** @nocollapse */
 
-    OverlayService.ctorParameters = function () {
+    OverlayHelper.ctorParameters = function () {
       return [{
         type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["ApplicationRef"]
       }, {
@@ -552,11 +562,11 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
     /** @nocollapse */
 
 
-    OverlayService.ngInjectableDef = Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdefineInjectable"])({
-      factory: function OverlayService_Factory() {
-        return new OverlayService(Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵinject"])(_angular_core__WEBPACK_IMPORTED_MODULE_0__["ApplicationRef"]), Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵinject"])(_angular_core__WEBPACK_IMPORTED_MODULE_0__["ComponentFactoryResolver"]), Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵinject"])(_angular_core__WEBPACK_IMPORTED_MODULE_0__["INJECTOR"]), Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵinject"])(_angular_common__WEBPACK_IMPORTED_MODULE_5__["DOCUMENT"]));
+    OverlayHelper.ngInjectableDef = Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdefineInjectable"])({
+      factory: function OverlayHelper_Factory() {
+        return new OverlayHelper(Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵinject"])(_angular_core__WEBPACK_IMPORTED_MODULE_0__["ApplicationRef"]), Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵinject"])(_angular_core__WEBPACK_IMPORTED_MODULE_0__["ComponentFactoryResolver"]), Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵinject"])(_angular_core__WEBPACK_IMPORTED_MODULE_0__["INJECTOR"]), Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵinject"])(_angular_common__WEBPACK_IMPORTED_MODULE_5__["DOCUMENT"]));
       },
-      token: OverlayService,
+      token: OverlayHelper,
       providedIn: "root"
     });
 
@@ -591,15 +601,19 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
     var PopupComponent = /*#__PURE__*/function () {
       /**
+       * @param {?} hostElRef
        * @param {?} cdr
-       * @param {?} overlayService
+       * @param {?} renderer
+       * @param {?} overlayHelper
        * @param {?} animation
        */
-      function PopupComponent(cdr, overlayService, animation) {
+      function PopupComponent(hostElRef, cdr, renderer, overlayHelper, animation) {
         _classCallCheck(this, PopupComponent);
 
+        this.hostElRef = hostElRef;
         this.cdr = cdr;
-        this.overlayService = overlayService;
+        this.renderer = renderer;
+        this.overlayHelper = overlayHelper;
         this.animation = animation;
         /* inputs
           -------------------------- */
@@ -698,6 +712,10 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
       _createClass(PopupComponent, [{
         key: "ngOnDestroy",
+
+        /**
+         * @return {?}
+         */
         value: function ngOnDestroy() {
           this.destroy$.next();
           this.destroy$.complete();
@@ -759,18 +777,29 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         value: function open() {
           var _this3 = this;
 
+          // 避免闪烁
+          this.renderer.setStyle(this.el, 'opacity', 0);
           this.visible = true;
-          this.cdr.detectChanges();
+          this.cdr.markForCheck();
           this.beforeOpen.emit();
-          this.leaving = false;
-          this.overlay && this.openOverlay();
-          this.animationSub = this.makeAnimation('enter').pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_4__["takeUntil"])(this.destroy$)).subscribe(
+          this.leaving = false; // 优化性能
+
+          setTimeout(
           /**
           * @return {?}
           */
           function () {
-            _this3.afterOpen.emit();
-          });
+            _this3.renderer.removeStyle(_this3.el, 'opacity');
+
+            _this3.overlay && _this3.openOverlay();
+            _this3.animationSub = _this3.makeAnimation('enter').pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_4__["takeUntil"])(_this3.destroy$)).subscribe(
+            /**
+            * @return {?}
+            */
+            function () {
+              _this3.afterOpen.emit();
+            });
+          }, 0);
         }
         /**
          * @private
@@ -809,9 +838,16 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         value: function openOverlay() {
           var _this5 = this;
 
-          this.closeOverlay = this.overlayService.open({
+          this.closeOverlay = this.overlayHelper.open({
             opacity: this.overlayOpacity,
             zIndex: this.zIndex,
+            getContainer:
+            /**
+            * @return {?}
+            */
+            function getContainer() {
+              return _this5.hostElRef.nativeElement;
+            },
             onClick:
             /**
             * @return {?}
@@ -905,6 +941,11 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
             transform: 'translate3d(-100%, 0, 0)'
           }))]), _Position$center$Posi2)[this.position];
         }
+      }, {
+        key: "el",
+        get: function get() {
+          return this.container.nativeElement;
+        }
       }]);
 
       return PopupComponent;
@@ -935,9 +976,13 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
     PopupComponent.ctorParameters = function () {
       return [{
+        type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["ElementRef"]
+      }, {
         type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["ChangeDetectorRef"]
       }, {
-        type: OverlayService
+        type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Renderer2"]
+      }, {
+        type: OverlayHelper
       }, {
         type: AnimationService
       }];
@@ -1695,34 +1740,58 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         this.currentAnimations = {};
         this.animations1 = {
           enter: [Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["style"])({
-            opacity: 0,
-            transform: 'scale(2)'
-          }), Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["animate"])('.3s ease', Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["style"])({
-            opacity: 1,
-            transform: 'scale(1)'
-          }))],
+            transform: "scale(0)"
+          }), Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["animate"])("1s", Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["keyframes"])([Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["style"])({
+            transform: "scale(0)",
+            offset: 0
+          }), Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["style"])({
+            transform: "scale(0.11)",
+            offset: 0.04
+          }), Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["style"])({
+            transform: "scale(0.44)",
+            offset: 0.08
+          }), Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["style"])({
+            transform: "scale(0.98)",
+            offset: 0.18
+          }), Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["style"])({
+            transform: "scale(0.75)",
+            offset: 0.26
+          }), Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["style"])({
+            transform: "scale(0.98)",
+            offset: 0.46
+          }), Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["style"])({
+            transform: "scale(0.94)",
+            offset: 0.64
+          }), Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["style"])({
+            transform: "scale(0.99)",
+            offset: 0.76
+          }), Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["style"])({
+            transform: "scale(0.98)",
+            offset: 0.88
+          }), Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["style"])({
+            transform: "scale(1)",
+            offset: 1
+          })]))],
           leave: [Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["style"])({
-            opacity: 1,
-            transform: 'scale(1)'
-          }), Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["animate"])('.3s ease', Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["style"])({
-            opacity: 0,
-            transform: 'scale(2)'
+            transform: "scale(1)"
+          }), Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["animate"])(".3s ease", Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["style"])({
+            transform: "scale(0)"
           }))]
         };
         this.animations2 = {
           enter: [Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["style"])({
             opacity: 0,
-            transform: 'translate3d(0, -150%, 0)'
-          }), Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["animate"])('.6s cubic-bezier(.57,.62,.23,1.23)', Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["style"])({
+            transform: "translate3d(0, -150%, 0)"
+          }), Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["animate"])(".5s cubic-bezier(0.34, 1.56, 0.64, 1)", Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["style"])({
             opacity: 1,
-            transform: 'translate3d(0, 0, 0)'
+            transform: "translate3d(0, 0, 0)"
           }))],
           leave: [Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["style"])({
             opacity: 1,
-            transform: 'translate3d(0, 0, 0)'
-          }), Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["animate"])('.3s ease', Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["style"])({
+            transform: "translate3d(0, 0, 0)"
+          }), Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["animate"])(".3s ease", Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["style"])({
             opacity: 0,
-            transform: 'translate3d(0, -150%, 0)'
+            transform: "translate3d(0, -150%, 0)"
           }))]
         };
       }
@@ -1747,7 +1816,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
     }();
 
     AnimationsComponent = tslib__WEBPACK_IMPORTED_MODULE_0__["__decorate"]([Object(_angular_core__WEBPACK_IMPORTED_MODULE_1__["Component"])({
-      selector: 'animations-demo',
+      selector: "animations-demo",
       template: "\n    <ngx-popup [(ngModel)]=\"visible\" [animations]=\"currentAnimations\">\n      <div style=\"padding: 100px; background: #fff\"></div>\n    </ngx-popup>\n\n    <button (click)=\"show(1)\">example 1</button>&nbsp;\n    <button (click)=\"show(2)\">example 2</button>&nbsp;\n  "
     })], AnimationsComponent);
     /***/

@@ -35,7 +35,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "PopupComponent", function() { return PopupComponent; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "PopupModule", function() { return PopupModule; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Position", function() { return Position; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ɵa", function() { return OverlayService; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ɵa", function() { return OverlayHelper; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ɵb", function() { return AnimationService; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ɵc", function() { return OverlayComponent; });
 /* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/fesm2015/core.js");
@@ -171,7 +171,7 @@ class OverlayComponent {
     get styles() {
         return {
             'z-index': this.zIndex,
-            'background': `rgba(0, 0, 0, ${this.opacity})`
+            'background': `rgba(0, 0, 0, ${this.opacity})`,
         };
     }
     /**
@@ -192,13 +192,6 @@ class OverlayComponent {
         this.clickOverlay.emit();
     }
     /**
-     * @param {?} ev
-     * @return {?}
-     */
-    onTouchmove(ev) {
-        ev.preventDefault();
-    }
-    /**
      * @param {?} state
      * @return {?}
      */
@@ -216,7 +209,7 @@ class OverlayComponent {
 }
 OverlayComponent.decorators = [
     { type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Component"], args: [{
-                selector: 'overlay',
+                selector: 'popup-overlay',
                 template: "<div\n  class=\"overlay\"\n  #container\n  [hidden]=\"!visible\"\n  [ngStyle]=\"styles\"\n  (click)=\"onClick()\"\n></div>\n",
                 encapsulation: _angular_core__WEBPACK_IMPORTED_MODULE_0__["ViewEncapsulation"].None,
                 changeDetection: _angular_core__WEBPACK_IMPORTED_MODULE_0__["ChangeDetectionStrategy"].OnPush,
@@ -234,14 +227,13 @@ OverlayComponent.propDecorators = {
     visible: [{ type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Input"] }],
     clickOverlay: [{ type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Output"] }],
     afterClose: [{ type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Output"] }],
-    container: [{ type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["ViewChild"], args: ['container', { static: false },] }],
-    onTouchmove: [{ type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["HostListener"], args: ['touchmove', ['$event'],] }]
+    container: [{ type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["ViewChild"], args: ['container', { static: false },] }]
 };
 if (false) {}
 
 /**
  * @fileoverview added by tsickle
- * Generated from: lib/overlay/overlay.service.ts
+ * Generated from: lib/overlay/overlay-helper.ts
  * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
  */
 /**
@@ -252,7 +244,7 @@ if (false) {}
 /**
  * \@dynamic
  */
-class OverlayService {
+class OverlayHelper {
     /**
      * @param {?} appRef
      * @param {?} cfr
@@ -266,18 +258,22 @@ class OverlayService {
         this.document = document;
     }
     /**
-     * @param {?} opts
+     * @param {?} options
      * @return {?}
      */
-    open(opts) {
-        const { opacity = 0.5, zIndex } = opts;
+    open(options) {
+        /** @type {?} */
+        const opts = Object.assign(this.getDefaultOptions(), options);
+        const { opacity, zIndex, getContainer } = opts;
         /** @type {?} */
         const factory = this.cfr.resolveComponentFactory(OverlayComponent);
         /** @type {?} */
         const componentRef = factory.create(this.injector);
         this.appRef.attachView(componentRef.hostView);
         const { nativeElement } = componentRef.location;
-        this.document.body.insertBefore(nativeElement, this.document.body.firstChild);
+        /** @type {?} */
+        const container = getContainer();
+        container.insertBefore(nativeElement, container.firstChild);
         /** @type {?} */
         const inst = componentRef.instance;
         inst.opacity = opacity;
@@ -290,6 +286,19 @@ class OverlayService {
         () => {
             inst.visible = false;
         });
+    }
+    /**
+     * @private
+     * @return {?}
+     */
+    getDefaultOptions() {
+        return {
+            opacity: 0.5,
+            getContainer: (/**
+             * @return {?}
+             */
+            () => document.body)
+        };
     }
     /**
      * @private
@@ -325,19 +334,19 @@ class OverlayService {
         }));
     }
 }
-OverlayService.decorators = [
+OverlayHelper.decorators = [
     { type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Injectable"], args: [{
                 providedIn: 'root'
             },] }
 ];
 /** @nocollapse */
-OverlayService.ctorParameters = () => [
+OverlayHelper.ctorParameters = () => [
     { type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["ApplicationRef"] },
     { type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["ComponentFactoryResolver"] },
     { type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Injector"] },
     { type: Document, decorators: [{ type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Inject"], args: [_angular_common__WEBPACK_IMPORTED_MODULE_5__["DOCUMENT"],] }] }
 ];
-/** @nocollapse */ OverlayService.ngInjectableDef = Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdefineInjectable"])({ factory: function OverlayService_Factory() { return new OverlayService(Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵinject"])(_angular_core__WEBPACK_IMPORTED_MODULE_0__["ApplicationRef"]), Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵinject"])(_angular_core__WEBPACK_IMPORTED_MODULE_0__["ComponentFactoryResolver"]), Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵinject"])(_angular_core__WEBPACK_IMPORTED_MODULE_0__["INJECTOR"]), Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵinject"])(_angular_common__WEBPACK_IMPORTED_MODULE_5__["DOCUMENT"])); }, token: OverlayService, providedIn: "root" });
+/** @nocollapse */ OverlayHelper.ngInjectableDef = Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdefineInjectable"])({ factory: function OverlayHelper_Factory() { return new OverlayHelper(Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵinject"])(_angular_core__WEBPACK_IMPORTED_MODULE_0__["ApplicationRef"]), Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵinject"])(_angular_core__WEBPACK_IMPORTED_MODULE_0__["ComponentFactoryResolver"]), Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵinject"])(_angular_core__WEBPACK_IMPORTED_MODULE_0__["INJECTOR"]), Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵinject"])(_angular_common__WEBPACK_IMPORTED_MODULE_5__["DOCUMENT"])); }, token: OverlayHelper, providedIn: "root" });
 if (false) {}
 
 /**
@@ -362,13 +371,17 @@ const Position = {
 };
 class PopupComponent {
     /**
+     * @param {?} hostElRef
      * @param {?} cdr
-     * @param {?} overlayService
+     * @param {?} renderer
+     * @param {?} overlayHelper
      * @param {?} animation
      */
-    constructor(cdr, overlayService, animation) {
+    constructor(hostElRef, cdr, renderer, overlayHelper, animation) {
+        this.hostElRef = hostElRef;
         this.cdr = cdr;
-        this.overlayService = overlayService;
+        this.renderer = renderer;
+        this.overlayHelper = overlayHelper;
         this.animation = animation;
         /* inputs
           -------------------------- */
@@ -426,6 +439,12 @@ class PopupComponent {
     /**
      * @return {?}
      */
+    get el() {
+        return this.container.nativeElement;
+    }
+    /**
+     * @return {?}
+     */
     ngOnDestroy() {
         this.destroy$.next();
         this.destroy$.complete();
@@ -470,19 +489,28 @@ class PopupComponent {
      * @return {?}
      */
     open() {
+        // 避免闪烁
+        this.renderer.setStyle(this.el, 'opacity', 0);
         this.visible = true;
-        this.cdr.detectChanges();
+        this.cdr.markForCheck();
         this.beforeOpen.emit();
         this.leaving = false;
-        this.overlay && this.openOverlay();
-        this.animationSub = this.makeAnimation('enter')
-            .pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_4__["takeUntil"])(this.destroy$))
-            .subscribe((/**
+        // 优化性能
+        setTimeout((/**
          * @return {?}
          */
         () => {
-            this.afterOpen.emit();
-        }));
+            this.renderer.removeStyle(this.el, 'opacity');
+            this.overlay && this.openOverlay();
+            this.animationSub = this.makeAnimation('enter')
+                .pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_4__["takeUntil"])(this.destroy$))
+                .subscribe((/**
+             * @return {?}
+             */
+            () => {
+                this.afterOpen.emit();
+            }));
+        }), 0);
     }
     /**
      * @private
@@ -509,9 +537,13 @@ class PopupComponent {
      * @return {?}
      */
     openOverlay() {
-        this.closeOverlay = this.overlayService.open({
+        this.closeOverlay = this.overlayHelper.open({
             opacity: this.overlayOpacity,
             zIndex: this.zIndex,
+            getContainer: (/**
+             * @return {?}
+             */
+            () => this.hostElRef.nativeElement),
             onClick: (/**
              * @return {?}
              */
@@ -583,8 +615,10 @@ PopupComponent.decorators = [
 ];
 /** @nocollapse */
 PopupComponent.ctorParameters = () => [
+    { type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["ElementRef"] },
     { type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["ChangeDetectorRef"] },
-    { type: OverlayService },
+    { type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Renderer2"] },
+    { type: OverlayHelper },
     { type: AnimationService }
 ];
 PopupComponent.propDecorators = {
@@ -927,22 +961,33 @@ let AnimationsComponent = class AnimationsComponent {
         this.currentAnimations = {};
         this.animations1 = {
             enter: [
-                Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["style"])({ opacity: 0, transform: 'scale(2)' }),
-                Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["animate"])('.3s ease', Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["style"])({ opacity: 1, transform: 'scale(1)' }))
+                Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["style"])({ transform: "scale(0)" }),
+                Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["animate"])("1s", Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["keyframes"])([
+                    Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["style"])({ transform: "scale(0)", offset: 0 }),
+                    Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["style"])({ transform: "scale(0.11)", offset: 0.04 }),
+                    Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["style"])({ transform: "scale(0.44)", offset: 0.08 }),
+                    Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["style"])({ transform: "scale(0.98)", offset: 0.18 }),
+                    Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["style"])({ transform: "scale(0.75)", offset: 0.26 }),
+                    Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["style"])({ transform: "scale(0.98)", offset: 0.46 }),
+                    Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["style"])({ transform: "scale(0.94)", offset: 0.64 }),
+                    Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["style"])({ transform: "scale(0.99)", offset: 0.76 }),
+                    Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["style"])({ transform: "scale(0.98)", offset: 0.88 }),
+                    Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["style"])({ transform: "scale(1)", offset: 1 })
+                ]))
             ],
             leave: [
-                Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["style"])({ opacity: 1, transform: 'scale(1)' }),
-                Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["animate"])('.3s ease', Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["style"])({ opacity: 0, transform: 'scale(2)' }))
+                Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["style"])({ transform: "scale(1)" }),
+                Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["animate"])(".3s ease", Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["style"])({ transform: "scale(0)" }))
             ]
         };
         this.animations2 = {
             enter: [
-                Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["style"])({ opacity: 0, transform: 'translate3d(0, -150%, 0)' }),
-                Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["animate"])('.6s cubic-bezier(.57,.62,.23,1.23)', Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["style"])({ opacity: 1, transform: 'translate3d(0, 0, 0)' }))
+                Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["style"])({ opacity: 0, transform: "translate3d(0, -150%, 0)" }),
+                Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["animate"])(".5s cubic-bezier(0.34, 1.56, 0.64, 1)", Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["style"])({ opacity: 1, transform: "translate3d(0, 0, 0)" }))
             ],
             leave: [
-                Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["style"])({ opacity: 1, transform: 'translate3d(0, 0, 0)' }),
-                Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["animate"])('.3s ease', Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["style"])({ opacity: 0, transform: 'translate3d(0, -150%, 0)' }))
+                Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["style"])({ opacity: 1, transform: "translate3d(0, 0, 0)" }),
+                Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["animate"])(".3s ease", Object(_angular_animations__WEBPACK_IMPORTED_MODULE_2__["style"])({ opacity: 0, transform: "translate3d(0, -150%, 0)" }))
             ]
         };
     }
@@ -959,7 +1004,7 @@ let AnimationsComponent = class AnimationsComponent {
 };
 AnimationsComponent = tslib__WEBPACK_IMPORTED_MODULE_0__["__decorate"]([
     Object(_angular_core__WEBPACK_IMPORTED_MODULE_1__["Component"])({
-        selector: 'animations-demo',
+        selector: "animations-demo",
         template: `
     <ngx-popup [(ngModel)]="visible" [animations]="currentAnimations">
       <div style="padding: 100px; background: #fff"></div>
