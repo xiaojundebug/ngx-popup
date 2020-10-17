@@ -7,15 +7,15 @@ import {
   forwardRef,
   Input,
   OnDestroy,
-  Output,
+  Output, Renderer2,
   ViewChild,
   ViewEncapsulation
-} from '@angular/core'
+} from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms'
 import { animate, AnimationMetadata, style } from '@angular/animations'
 import { Subject, Subscription } from 'rxjs'
 import { takeUntil } from 'rxjs/operators'
-import { OverlayService } from '../overlay/overlay.service'
+import { OverlayHelper } from '../overlay/overlay-helper'
 import { AnimationService } from '../animation.service'
 
 let zIndex = 9999
@@ -67,6 +67,9 @@ export class PopupComponent implements ControlValueAccessor, OnDestroy {
   @ViewChild('container', { static: false }) private container: ElementRef
 
   visible: boolean
+  get el() {
+    return this.container.nativeElement
+  }
 
   private destroy$ = new Subject<any>()
   private animationSub: Subscription
@@ -76,8 +79,10 @@ export class PopupComponent implements ControlValueAccessor, OnDestroy {
   private closeOverlay: () => void
 
   constructor(
+    private hostElRef: ElementRef,
     private cdr: ChangeDetectorRef,
-    private overlayService: OverlayService,
+    private renderer: Renderer2,
+    private overlayHelper: OverlayHelper,
     private animation: AnimationService
   ) {}
 
@@ -108,16 +113,22 @@ export class PopupComponent implements ControlValueAccessor, OnDestroy {
   }
 
   private open() {
+    // 避免闪烁
+    this.renderer.setStyle(this.el, 'opacity', 0)
     this.visible = true
-    this.cdr.detectChanges()
+    this.cdr.markForCheck()
     this.beforeOpen.emit()
     this.leaving = false
-    this.overlay && this.openOverlay()
-    this.animationSub = this.makeAnimation('enter')
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(() => {
-        this.afterOpen.emit()
-      })
+    // 优化性能
+    setTimeout(() => {
+      this.renderer.removeStyle(this.el, 'opacity')
+      this.overlay && this.openOverlay()
+      this.animationSub = this.makeAnimation('enter')
+        .pipe(takeUntil(this.destroy$))
+        .subscribe(() => {
+          this.afterOpen.emit()
+        })
+    }, 0)
   }
 
   private close() {
@@ -135,9 +146,10 @@ export class PopupComponent implements ControlValueAccessor, OnDestroy {
   }
 
   private openOverlay() {
-    this.closeOverlay = this.overlayService.open({
+    this.closeOverlay = this.overlayHelper.open({
       opacity: this.overlayOpacity,
       zIndex: this.zIndex,
+      getContainer: () => this.hostElRef.nativeElement,
       onClick: () => {
         this.clickOverlay.emit()
         if (this.closeOnClickOverlay && this.visible && !this.leaving) {

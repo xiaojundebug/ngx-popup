@@ -10,17 +10,18 @@ import { OverlayComponent } from './overlay.component'
 import { DOCUMENT } from '@angular/common'
 import { Subscription } from 'rxjs'
 
-interface OverlayOptions {
+export interface OverlayOptions {
   opacity: number
   zIndex?: number
   onClick?: () => void
+  getContainer?: () => HTMLElement
 }
 
 /** @dynamic */
 @Injectable({
   providedIn: 'root'
 })
-export class OverlayService {
+export class OverlayHelper {
   constructor(
     private appRef: ApplicationRef,
     private cfr: ComponentFactoryResolver,
@@ -28,15 +29,17 @@ export class OverlayService {
     @Inject(DOCUMENT) private document: Document
   ) {}
 
-  open(opts: OverlayOptions) {
-    const { opacity = 0.5, zIndex } = opts
+  open(options: OverlayOptions) {
+    const opts = Object.assign(this.getDefaultOptions(), options)
+    const { opacity, zIndex, getContainer } = opts
 
     const factory = this.cfr.resolveComponentFactory(OverlayComponent)
     const componentRef = factory.create(this.injector)
     this.appRef.attachView(componentRef.hostView)
 
     const { nativeElement } = componentRef.location
-    this.document.body.insertBefore(nativeElement, this.document.body.firstChild)
+    const container = getContainer()
+    container.insertBefore(nativeElement, container.firstChild)
 
     const inst = componentRef.instance
     inst.opacity = opacity
@@ -47,6 +50,13 @@ export class OverlayService {
 
     return () => {
       inst.visible = false
+    }
+  }
+
+  private getDefaultOptions(): OverlayOptions {
+    return {
+      opacity: 0.5,
+      getContainer: () => document.body
     }
   }
 

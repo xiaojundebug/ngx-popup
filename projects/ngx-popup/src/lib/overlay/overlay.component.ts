@@ -3,25 +3,24 @@ import {
   ChangeDetectorRef,
   Component,
   EventEmitter,
-  HostListener,
   Input,
   OnDestroy,
   OnInit,
   Output,
   ViewChild,
-  ViewEncapsulation
+  ViewEncapsulation,
 } from '@angular/core'
 import { animate, style } from '@angular/animations'
-import { Subject, Subscription } from 'rxjs'
+import { Observable, Subject, Subscription } from 'rxjs'
 import { takeUntil } from 'rxjs/operators'
 import { AnimationService } from '../animation.service'
 
 @Component({
-  selector: 'overlay',
+  selector: 'popup-overlay',
   templateUrl: './overlay.component.html',
   styleUrls: ['./overlay.component.less'],
   encapsulation: ViewEncapsulation.None,
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class OverlayComponent implements OnInit, OnDestroy {
   @Input() zIndex: number
@@ -57,7 +56,7 @@ export class OverlayComponent implements OnInit, OnDestroy {
   get styles() {
     return {
       'z-index': this.zIndex,
-      'background': `rgba(0, 0, 0, ${this.opacity})`
+      'background': `rgba(0, 0, 0, ${this.opacity})`,
     }
   }
 
@@ -78,12 +77,7 @@ export class OverlayComponent implements OnInit, OnDestroy {
     this.clickOverlay.emit()
   }
 
-  @HostListener('touchmove', ['$event'])
-  onTouchmove(ev) {
-    ev.preventDefault()
-  }
-
-  makeAnimation(state) {
+  makeAnimation(state): Observable<any> {
     const isEnter = state === 'enter'
     const el = this.container.nativeElement
     const animation = isEnter
